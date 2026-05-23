@@ -1,0 +1,11 @@
+# Litestream config — continuously replicates the SQLite DB to object storage (R2/S3).
+# Replica URL and credentials provided via env (LITESTREAM_REPLICA_URL + AWS_* envs).
+
+dbs:
+  - path: ${COMPASS_SQLITE_PATH:-/data/compass.db}
+    replicas:
+      - url: ${LITESTREAM_REPLICA_URL}
+        retention: 168h        # keep 7 days of WAL frames
+        retention-check-interval: 6h
+        snapshot-interval: 24h
+        sync-interval: 10s

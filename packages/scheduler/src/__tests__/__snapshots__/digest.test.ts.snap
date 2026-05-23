@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderDigest > snapshot of the empty-state output is stable 1`] = `
+"Compass — <date>
+
+*Momentum \\(last 7 days\\)*
+_Nothing touched this week\\._
+
+*Needs attention*
+_All current\\._
+
+*This week*
+_No targets this week\\._
+
+_0 in inbox · 0 projects · 0 learning goals_"
+`;

@@ -1,0 +1,11 @@
+dist
+node_modules
+*.tsbuildinfo
+
+# Tauri build artifacts and generated bindings
+src-tauri/target
+src-tauri/gen
+src-tauri/Cargo.lock
+
+# OS
+.DS_Store

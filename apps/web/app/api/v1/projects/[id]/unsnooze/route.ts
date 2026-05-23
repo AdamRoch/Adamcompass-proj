@@ -1,0 +1,16 @@
+import type { NextRequest } from 'next/server';
+import * as projectsQ from '@compass/db/queries/projects';
+import { ApiError } from '@compass/shared';
+import { fromApiError, ok, requireAuth } from '@/lib/api';
+
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    await requireAuth(req);
+    const { id } = await params;
+    const project = await projectsQ.unsnoozeProject(id);
+    if (!project) throw new ApiError('not_found', 'project not found', 404);
+    return ok({ project });
+  } catch (e) {
+    return fromApiError(e);
+  }
+}

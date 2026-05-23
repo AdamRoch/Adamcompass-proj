@@ -1,0 +1,43 @@
+{
+  "name": "@compass/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./schema/sqlite": "./src/schema/sqlite.ts",
+    "./schema/pg": "./src/schema/pg.ts",
+    "./queries": "./src/queries/index.ts",
+    "./queries/*": "./src/queries/*.ts",
+    "./touch": "./src/touch.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "generate": "pnpm generate:sqlite && pnpm generate:pg",
+    "generate:sqlite": "drizzle-kit generate --config=drizzle.config.sqlite.ts",
+    "generate:pg": "drizzle-kit generate --config=drizzle.config.pg.ts",
+    "migrate": "node --env-file-if-exists=../../.env.local --env-file-if-exists=.env.local --import tsx ./src/migrate.ts",
+    "push:sqlite": "drizzle-kit push --config=drizzle.config.sqlite.ts",
+    "push:pg": "drizzle-kit push --config=drizzle.config.pg.ts",
+    "studio:sqlite": "drizzle-kit studio --config=drizzle.config.sqlite.ts",
+    "studio:pg": "drizzle-kit studio --config=drizzle.config.pg.ts",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@compass/shared": "workspace:*",
+    "better-sqlite3": "^11.5.0",
+    "drizzle-orm": "^0.36.4",
+    "pg": "^8.13.1",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/pg": "^8.11.10",
+    "drizzle-kit": "^0.28.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

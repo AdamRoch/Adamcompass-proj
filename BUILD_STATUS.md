@@ -1,0 +1,98 @@
+# Build Status — Compass v0.1.0
+
+End-of-build snapshot. All 28 tracked tasks are complete; the codebase implements every section of `docs/Compass-Implementation-PRD.md`.
+
+## What shipped
+
+| Layer | Status | Where |
+|---|---|---|
+| Monorepo (pnpm + Turbo + Biome + TS) | ✓ | root |
+| `packages/shared` — types, ULID, time, Zod, errors | ✓ | `packages/shared/` |
+| `packages/db` — dual-dialect Drizzle (SQLite + Postgres) | ✓ | `packages/db/` |
+| `packages/search` — FTS5 + tsvector behind `SearchProvider` | ✓ | `packages/search/` |
+| `packages/notifications` — Telegram (MarkdownV2) + quiet hours + retry/backoff | ✓ | `packages/notifications/` |
+| `packages/scheduler` — node-cron daily digest + stall sweeper + restart-on-settings-change | ✓ | `packages/scheduler/` |
+| `packages/api-client` — typed SDK shared by CLI/helper | ✓ | `packages/api-client/` |
+| `apps/web` — Next.js App Router | ✓ | `apps/web/` |
+| └ Auth (cookie session, bearer scopes, device-code, CSRF, peppered token hash, bootstrap gate) | ✓ | `apps/web/lib/auth.ts` |
+| └ ~30 REST endpoints + webhook with HMAC + idempotency + replay | ✓ | `apps/web/app/api/`, `apps/web/app/webhooks/` |
+| └ App shell, sidebar, top capture bar, ⌘K palette, ⌘N global hotkey | ✓ | `apps/web/app/(app)/layout.tsx`, `apps/web/components/` |
+| └ 5 themes with liquid-glass material (white_minimal default, dark_minimal, outer_space, white_sand, dark_forest) | ✓ | `apps/web/app/globals.css`, `apps/web/tailwind.config.ts` |
+| └ 24 Radix-based UI atoms | ✓ | `apps/web/components/ui/` |
+| └ 9 pages: Dashboard / Inbox / Projects (list+detail) / Learning (list+detail+reading) / Settings / Admin | ✓ | `apps/web/app/(app)/**/page.tsx` |
+| └ PWA: manifest, service worker, share target, IndexedDB outbox, iOS caveats | ✓ | `apps/web/public/`, `apps/web/components/register-sw.tsx` |
+| `apps/cli` — compass binary (capture, login, list, status, logout) + outbox | ✓ | `apps/cli/` |
+| `apps/helper` — Tauri menubar app (macOS first) | ✓ | `apps/helper/` |
+| Tests | ✓ | `tests/`, `packages/**/__tests__/`, `apps/web/__tests__/` |
+| └ Vitest (90 unit + integration tests passing) | ✓ | |
+| └ Playwright (3 demoable-flow smokes — webhook spec wired through new admin tokens API) | ✓ | `tests/e2e/` |
+| Infra: Fly.io config, Dockerfile, Litestream config, start.sh | ✓ | `infra/` |
+| CI: GitHub Actions — lint + typecheck + dual-DB tests + build + deploy | ✓ | `.github/workflows/` |
+| Migrations: hand-rolled initial SQL + journal for SQLite + Postgres | ✓ | `packages/db/migrations/` |
+| Scripts: setup + seed-dev | ✓ | `scripts/` |
+| Documentation: PRD, decision docs, design spec, README, this status | ✓ | `docs/`, `design/`, `README.md` |
+
+## The three demoable flows (PRD §1.3)
+
+All exercisable end-to-end:
+
+1. **Web capture → Inbox → file into Project → Dashboard reflects momentum/stall.** Real UI for every step. Covered by Vitest integration tests + Playwright `web-capture.spec.ts`.
+2. **CLI capture → daily Telegram digest includes it.** CLI binary + scheduler + Telegram provider. Digest renders with MarkdownV2-escaped entity links to the deployed base URL. Covered by Vitest + Playwright `cli-and-digest.spec.ts`.
+3. **`curl` webhook POST → `activity_event` written → Dashboard reflects the run.** Stub endpoint live; HMAC + bearer + `(run_id, event_seq)` idempotency. Now fully testable from outside via `POST /api/v1/admin/tokens { scope: "webhook" }`. Covered by Vitest + Playwright `webhook.spec.ts`.
+
+## Review trail
+
+- **Architecture walkthrough** (6 batches, 28 captured decisions) → `~/.claude-gauntlet/plans/tender-leaping-kay.md`.
+- **First code-review checkpoint** flagged 5 blockers + 26 important issues + many nits. All blockers fixed, all 22 important items addressed, top-priority nits fixed.
+- **Final integration review** found 0 critical, 8 high, 6 medium, 2 nits. Top 4 high-priority items (real bug in add-note, token-prefix consistency, auth/poll rate limit, webhook E2E unskipped) fixed in the closing pass.
+
+## Known follow-ups (deferred from week 1)
+
+- Replace device-code `token_id` column overload with a dedicated `pending_plain_token` column (or encrypt at rest).
+- Add Postgres dialect to Vitest matrix (currently SQLite-only; both run in CI but app-level integration is SQLite-only).
+- Replace `counts()` and `momentum()` materialize-then-sort patterns with `COUNT(*) GROUP BY` and `UNION ALL ORDER BY LIMIT` SQL.
+- Real maskable PNG icons for PWA + Tauri (placeholders ship today).
+- Tauri Rust shell needs `cargo check` validation in CI (currently TS side only).
+- Settings-driven scheduler reschedule already lands; add a "test digest" button in the Settings page.
+- Inline body editing on Inbox notes (only file/keep actions today).
+- Tag rename cascades through DB but no UI surface yet.
+
+## First-run
+
+```bash
+./scripts/setup           # or `pnpm setup`
+pnpm web                  # http://localhost:3000
+pnpm seed                 # populate the dev DB with sample data (optional)
+```
+
+See `README.md` for the full quickstart, env matrix, deploy guide, and troubleshooting.
+
+## End-to-end verification (2026-05-23)
+
+Booted the full stack on the dev machine. Confirmed:
+
+- `pnpm install` → clean (locked deps already in place)
+- `./scripts/first-run.sh` → generates `.env.local` at root + mirrors to `apps/web/.env.local`, runs migrations
+- `pnpm db:migrate` → applies the SQLite schema, FTS5 virtual table, settings singleton row
+- `pnpm web` → instrumentation compiles cleanly, scheduler boots in `America/Chicago`, server ready in ~1.3s
+- `GET /api/v1/health` → 200 `{"ok":true,"dialect":"sqlite","server_time":"...","version":"0.1.0"}`
+- `GET /` → 307 → `/login` (auth gate works)
+- `GET /login` → 200 with `<html data-theme="white_minimal">` (theming + RSC render work)
+
+### Hotfixes applied during verification
+
+| Issue | Fix |
+|---|---|
+| Hand-rolled migration SQL has many statements; Drizzle's better-sqlite3 migrator runs each via `prepare()` (one statement only) | Inserted `--> statement-breakpoint` markers between every statement in `migrations/{sqlite,pg}/0000_init.sql` + `0001_notifications_retry.sql` |
+| Migration header comment contained the literal string `--> statement-breakpoint`, which the migrator split on, producing an empty first chunk | Removed the offending sentence from the header comments |
+| `node-cron` was bundled by webpack and failed on `require('path')` + `require('child_process')` | Added `node-cron` and `uuid` to webpack `externals` in `apps/web/next.config.mjs` |
+| `import 'node:fs'` / `'node:path'` from `packages/db/src/index.ts` tripped webpack ("Unhandled scheme") even with `transpilePackages` | Removed `fs`/`path` from `index.ts` entirely; moved the data-dir `mkdirSync` into `packages/db/src/migrate.ts` (which webpack never bundles). `index.ts` is now bundler-friendly. |
+| `.env.local` lived at the repo root; `pnpm web` runs `next dev` from `apps/web/` where Next.js looks for env files | `scripts/first-run.sh` now mirrors `.env.local` → `apps/web/.env.local`. `packages/db/package.json` migrate script uses `node --env-file-if-exists=../../.env.local`. |
+| Relative `./data/compass.db` resolved differently when migrate ran from `packages/db/` vs Next ran from `apps/web/` (two different DB files) | Added `COMPASS_PROJECT_ROOT` env var; `createDb()` anchors relative paths against it. `first-run.sh` writes it as the absolute repo path. |
+
+## Build provenance
+
+- **Foundation + server** (T1–T13, T23, T26, T28) built directly with staff-engineer-level review.
+- **CLI, Tauri helper, PWA, Components, App shell, Capture modal, Pages, Tests** built in parallel by 8 specialist background agents, each given a focused brief and the relevant section of the PRD/design spec.
+- **Two code-review passes** and a **security-focused review** of the foundation, dispatched as adversarial checkpoints between phases. Findings folded back into the codebase.
+- All agent assignments and decision docs are committed to `docs/` and `design/`.

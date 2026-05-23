@@ -1,0 +1,40 @@
+{
+  "name": "@compass/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Compass CLI — capture from any terminal.",
+  "bin": {
+    "compass": "./bin/compass.mjs"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "node --import tsx ./src/index.ts",
+    "start": "node ./dist/index.js",
+    "build": "tsc -p tsconfig.json",
+    "compile": "bun build --compile --target=bun-darwin-arm64 ./src/index.ts --outfile ./dist/compass-macos-arm64 && bun build --compile --target=bun-darwin-x64 ./src/index.ts --outfile ./dist/compass-macos-x64 && bun build --compile --target=bun-linux-x64 ./src/index.ts --outfile ./dist/compass-linux-x64",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@compass/api-client": "workspace:*",
+    "@compass/shared": "workspace:*",
+    "cli-table3": "^0.6.5",
+    "commander": "^12.1.0",
+    "kleur": "^4.1.5",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

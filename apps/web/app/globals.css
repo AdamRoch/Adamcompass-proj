@@ -1,0 +1,338 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================================
+   Compass theme tokens — values verbatim from
+   design/02-implementation-reference.md §1
+   ============================================================= */
+
+:root {
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  --blur-sm: 8px;
+  --blur-md: 16px;
+  --blur-lg: 24px;
+  --blur-xl: 40px;
+
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-quart: cubic-bezier(0.5, 0, 0.75, 0);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --dur-hover: 120ms;
+  --dur-focus: 100ms;
+  --dur-press: 60ms;
+  --dur-popover-in: 140ms;
+  --dur-popover-out: 100ms;
+  --dur-dialog-in: 220ms;
+  --dur-dialog-out: 160ms;
+  --dur-sheet: 280ms;
+  --dur-toast-in: 260ms;
+  --dur-toast-out: 180ms;
+  --dur-list-reorder: 240ms;
+  --dur-tabs-underline: 200ms;
+  --dur-theme-ambient: 320ms;
+  --dur-skeleton: 1400ms;
+
+  --density: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-hover: 80ms;
+    --dur-focus: 80ms;
+    --dur-popover-in: 80ms;
+    --dur-popover-out: 80ms;
+    --dur-dialog-in: 80ms;
+    --dur-dialog-out: 80ms;
+    --dur-sheet: 80ms;
+    --dur-toast-in: 80ms;
+    --dur-toast-out: 80ms;
+    --dur-list-reorder: 80ms;
+    --dur-tabs-underline: 80ms;
+    --dur-theme-ambient: 0ms;
+  }
+}
+
+/* ---------- white_minimal (default) ---------- */
+:root,
+:root[data-theme='white_minimal'] {
+  /* legacy --color-* aliases — kept for components built against earlier token names */
+  --color-background: var(--bg, 220 14% 98%);
+  --color-surface: var(--surface, 0 0% 100%);
+  --color-surface-elevated: var(--surface-elevated, 0 0% 100%);
+  --color-border: var(--border, 220 14% 90%);
+  --color-text-primary: var(--text-primary, 220 18% 14%);
+  --color-text-muted: var(--text-muted, 220 10% 46%);
+  --color-text-subtle: var(--text-faint, 220 8% 64%);
+  --color-accent: var(--accent, 217 92% 52%);
+  --color-accent-hover: var(--accent-hover, 217 92% 46%);
+  --color-accent-fg: var(--accent-fg, 0 0% 100%);
+  --color-success: var(--success, 152 60% 42%);
+  --color-warning: var(--warning, 38 92% 52%);
+  --color-danger: var(--danger, 0 72% 52%);
+  --color-focus-ring: var(--focus-ring, 217 92% 52%);
+  --shadow-sm: var(--elev-1, 0 1px 2px hsl(220 12% 20% / 0.04));
+  --shadow-md: var(--elev-2);
+  --shadow-lg: var(--elev-3);
+  --shadow-glass: var(--glass-outer-shadow);
+  --blur-glass: 20px;
+
+  --bg: 220 14% 98%;
+  --bg-ambient: 220 24% 96%;
+  --surface: 0 0% 100%;
+  --surface-elevated: 0 0% 100%;
+  --surface-sunken: 220 14% 95%;
+  --border: 220 14% 90%;
+  --border-strong: 220 12% 82%;
+  --text-primary: 220 18% 14%;
+  --text-muted: 220 10% 46%;
+  --text-faint: 220 8% 64%;
+  --accent: 217 92% 52%;
+  --accent-hover: 217 92% 46%;
+  --accent-soft: 217 92% 94%;
+  --accent-fg: 0 0% 100%;
+  --success: 152 60% 42%;
+  --warning: 38 92% 52%;
+  --danger: 0 72% 52%;
+  --focus-ring: 217 92% 52%;
+  --focus-ring-alpha: 0.4;
+  --glass-alpha: 0.72;
+  --glass-blur-filter: blur(20px) saturate(1.4);
+  --glass-border: 220 14% 90%;
+  --glass-border-alpha: 0.6;
+  --glass-inner-highlight: inset 0 1px 0 hsl(0 0% 100% / 0.8);
+  --glass-outer-shadow:
+    0 1px 2px hsl(220 12% 20% / 0.04),
+    0 8px 24px hsl(220 12% 20% / 0.06);
+  --elev-1: 0 1px 2px hsl(220 12% 20% / 0.04);
+  --elev-2: 0 2px 4px hsl(220 12% 20% / 0.05), 0 4px 12px hsl(220 12% 20% / 0.05);
+  --elev-3: 0 1px 2px hsl(220 12% 20% / 0.04), 0 8px 24px hsl(220 12% 20% / 0.06);
+  --elev-4: 0 4px 8px hsl(220 12% 20% / 0.06), 0 24px 48px hsl(220 12% 20% / 0.12);
+  --overlay: 220 18% 14%;
+  --overlay-alpha: 0.25;
+}
+
+:root[data-theme='dark_minimal'] {
+  --bg: 222 18% 8%;
+  --bg-ambient: 222 22% 6%;
+  --surface: 222 14% 12%;
+  --surface-elevated: 222 14% 14%;
+  --surface-sunken: 222 16% 10%;
+  --border: 222 12% 22%;
+  --border-strong: 222 12% 32%;
+  --text-primary: 220 14% 92%;
+  --text-muted: 220 8% 64%;
+  --text-faint: 220 6% 46%;
+  --accent: 200 90% 62%;
+  --accent-hover: 200 90% 70%;
+  --accent-soft: 200 60% 18%;
+  --accent-fg: 222 30% 8%;
+  --success: 152 50% 52%;
+  --warning: 38 86% 58%;
+  --danger: 0 68% 60%;
+  --focus-ring: 200 90% 62%;
+  --focus-ring-alpha: 0.5;
+  --glass-alpha: 0.58;
+  --glass-blur-filter: blur(22px) saturate(1.2);
+  --glass-border: 0 0% 100%;
+  --glass-border-alpha: 0.06;
+  --glass-inner-highlight: inset 0 1px 0 hsl(0 0% 100% / 0.05);
+  --glass-outer-shadow:
+    0 1px 2px hsl(0 0% 0% / 0.4),
+    0 12px 32px hsl(0 0% 0% / 0.35);
+  --elev-1: 0 1px 2px hsl(0 0% 0% / 0.3);
+  --elev-2: 0 2px 4px hsl(0 0% 0% / 0.35), 0 6px 16px hsl(0 0% 0% / 0.35);
+  --elev-3: 0 1px 2px hsl(0 0% 0% / 0.4), 0 12px 32px hsl(0 0% 0% / 0.4);
+  --elev-4: 0 4px 8px hsl(0 0% 0% / 0.45), 0 28px 56px hsl(0 0% 0% / 0.55);
+  --overlay: 0 0% 0%;
+  --overlay-alpha: 0.4;
+}
+
+:root[data-theme='outer_space'] {
+  --bg: 245 38% 7%;
+  --bg-ambient: 260 50% 5%;
+  --surface: 245 28% 13%;
+  --surface-elevated: 245 26% 16%;
+  --surface-sunken: 245 32% 10%;
+  --border: 245 20% 28%;
+  --border-strong: 260 24% 38%;
+  --text-primary: 250 30% 94%;
+  --text-muted: 250 18% 70%;
+  --text-faint: 250 12% 52%;
+  --accent: 280 80% 68%;
+  --accent-hover: 280 84% 76%;
+  --accent-soft: 280 50% 20%;
+  --accent-fg: 260 40% 10%;
+  --success: 162 60% 58%;
+  --warning: 38 88% 62%;
+  --danger: 350 78% 62%;
+  --focus-ring: 280 80% 68%;
+  --focus-ring-alpha: 0.55;
+  --glass-alpha: 0.52;
+  --glass-blur-filter: blur(28px) saturate(1.5);
+  --glass-border: 280 60% 70%;
+  --glass-border-alpha: 0.18;
+  --glass-inner-highlight: inset 0 1px 0 hsl(280 100% 90% / 0.08);
+  --glass-outer-shadow:
+    0 1px 2px hsl(260 60% 4% / 0.6),
+    0 16px 40px hsl(260 80% 4% / 0.55);
+  --elev-1: 0 1px 2px hsl(0 0% 0% / 0.35);
+  --elev-2: 0 2px 4px hsl(0 0% 0% / 0.4), 0 6px 16px hsl(260 60% 4% / 0.4);
+  --elev-3: 0 1px 2px hsl(0 0% 0% / 0.45), 0 12px 32px hsl(260 60% 4% / 0.45);
+  --elev-4: 0 4px 8px hsl(0 0% 0% / 0.5), 0 28px 56px hsl(260 60% 4% / 0.6);
+  --overlay: 260 60% 3%;
+  --overlay-alpha: 0.55;
+}
+
+:root[data-theme='white_sand'] {
+  --bg: 36 38% 94%;
+  --bg-ambient: 200 50% 92%;
+  --surface: 38 50% 97%;
+  --surface-elevated: 38 60% 98%;
+  --surface-sunken: 36 30% 90%;
+  --border: 36 22% 80%;
+  --border-strong: 36 20% 68%;
+  --text-primary: 28 32% 18%;
+  --text-muted: 30 16% 42%;
+  --text-faint: 32 14% 58%;
+  --accent: 198 72% 44%;
+  --accent-hover: 198 76% 38%;
+  --accent-soft: 198 60% 88%;
+  --accent-fg: 0 0% 100%;
+  --success: 160 52% 38%;
+  --warning: 26 86% 52%;
+  --danger: 8 70% 50%;
+  --focus-ring: 198 72% 44%;
+  --focus-ring-alpha: 0.45;
+  --glass-alpha: 0.68;
+  --glass-blur-filter: blur(18px) saturate(1.3);
+  --glass-border: 36 30% 70%;
+  --glass-border-alpha: 0.45;
+  --glass-inner-highlight: inset 0 1px 0 hsl(38 60% 99% / 0.9);
+  --glass-outer-shadow:
+    0 1px 3px hsl(28 30% 30% / 0.08),
+    0 10px 28px hsl(28 25% 35% / 0.10);
+  --elev-1: 0 1px 2px hsl(28 30% 30% / 0.06);
+  --elev-2: 0 2px 4px hsl(28 30% 30% / 0.07), 0 4px 12px hsl(28 25% 35% / 0.08);
+  --elev-3: 0 1px 3px hsl(28 30% 30% / 0.08), 0 10px 28px hsl(28 25% 35% / 0.10);
+  --elev-4: 0 4px 8px hsl(28 25% 30% / 0.10), 0 24px 48px hsl(28 25% 30% / 0.14);
+  --overlay: 28 30% 20%;
+  --overlay-alpha: 0.30;
+}
+
+:root[data-theme='dark_forest'] {
+  --bg: 150 22% 8%;
+  --bg-ambient: 155 30% 6%;
+  --surface: 150 18% 13%;
+  --surface-elevated: 150 16% 16%;
+  --surface-sunken: 150 22% 10%;
+  --border: 150 14% 24%;
+  --border-strong: 150 14% 34%;
+  --text-primary: 60 12% 92%;
+  --text-muted: 90 8% 66%;
+  --text-faint: 100 8% 50%;
+  --accent: 90 56% 58%;
+  --accent-hover: 90 60% 66%;
+  --accent-soft: 90 40% 18%;
+  --accent-fg: 150 30% 10%;
+  --success: 135 50% 56%;
+  --warning: 42 78% 60%;
+  --danger: 8 62% 56%;
+  --focus-ring: 90 56% 58%;
+  --focus-ring-alpha: 0.5;
+  --glass-alpha: 0.56;
+  --glass-blur-filter: blur(24px) saturate(1.35);
+  --glass-border: 90 30% 60%;
+  --glass-border-alpha: 0.18;
+  --glass-inner-highlight: inset 0 1px 0 hsl(90 40% 80% / 0.10);
+  --glass-outer-shadow:
+    0 1px 2px hsl(150 40% 4% / 0.5),
+    0 14px 36px hsl(150 50% 4% / 0.45);
+  --elev-1: 0 1px 2px hsl(150 40% 4% / 0.35);
+  --elev-2: 0 2px 4px hsl(150 40% 4% / 0.4), 0 6px 16px hsl(150 50% 4% / 0.4);
+  --elev-3: 0 1px 2px hsl(150 40% 4% / 0.45), 0 12px 32px hsl(150 50% 4% / 0.45);
+  --elev-4: 0 4px 8px hsl(150 40% 4% / 0.5), 0 28px 56px hsl(150 50% 4% / 0.6);
+  --overlay: 150 40% 4%;
+  --overlay-alpha: 0.5;
+}
+
+/* ---------- Glass + component layers ---------- */
+@layer components {
+  .surface-glass {
+    background-color: hsl(var(--surface) / var(--glass-alpha));
+    backdrop-filter: var(--glass-blur-filter);
+    -webkit-backdrop-filter: var(--glass-blur-filter);
+    border: 1px solid hsl(var(--glass-border, var(--border)) / var(--glass-border-alpha));
+    box-shadow:
+      var(--glass-inner-highlight),
+      var(--glass-outer-shadow);
+  }
+  .surface-glass-sm {
+    backdrop-filter: blur(8px) saturate(1.1);
+    -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  }
+  .surface-glass-md {
+    backdrop-filter: blur(16px) saturate(1.25);
+    -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  }
+  .surface-glass-lg {
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  }
+  .surface-glass-xl {
+    backdrop-filter: blur(40px) saturate(1.5);
+    -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  }
+  @supports not (backdrop-filter: blur(1px)) {
+    .surface-glass {
+      background-color: hsl(var(--surface) / 0.95);
+    }
+  }
+  .focus-ring {
+    outline: none;
+  }
+  .focus-ring:focus-visible {
+    box-shadow:
+      0 0 0 2px hsl(var(--bg)),
+      0 0 0 4px hsl(var(--focus-ring) / var(--focus-ring-alpha, 0.5));
+  }
+}
+
+/* ---------- Base ---------- */
+html,
+body {
+  background-color: hsl(var(--bg));
+  color: hsl(var(--text-primary));
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+::selection {
+  background-color: hsl(var(--accent) / 0.25);
+}
+
+/* Ambient gradient layer behind the app for themes that benefit from it */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 0%, hsl(var(--bg-ambient) / 0.6) 0%, transparent 60%),
+    radial-gradient(circle at 80% 100%, hsl(var(--bg-ambient) / 0.4) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+  transition: opacity var(--dur-theme-ambient) var(--ease-out-quart);
+}

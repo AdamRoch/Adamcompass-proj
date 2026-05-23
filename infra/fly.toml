@@ -1,0 +1,48 @@
+# Fly.io app config. Run `fly launch --copy-config` and answer no to creating apps until you're
+# ready. Then `fly secrets set ...` for COMPASS_SESSION_SECRET, COMPASS_WEBHOOK_HMAC_SECRET,
+# TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, LITESTREAM_REPLICA_URL, LITESTREAM_ACCESS_KEY_ID,
+# LITESTREAM_SECRET_ACCESS_KEY. Then `fly deploy`.
+
+app = "compass"
+primary_region = "ord"
+
+[build]
+  dockerfile = "infra/Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  COMPASS_DB_DIALECT = "sqlite"
+  COMPASS_SQLITE_PATH = "/data/compass.db"
+  COMPASS_BASE_URL = "https://compass.fly.dev"
+  COMPASS_TZ = "America/Chicago"
+  NEXT_TELEMETRY_DISABLED = "1"
+
+[[mounts]]
+  source = "compass_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "off"  # single-user: keep warm so scheduler runs
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 100
+    soft_limit = 50
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/api/v1/health"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512

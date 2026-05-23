@@ -1,0 +1,41 @@
+{
+  "name": "compass",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "setup": "./scripts/first-run.sh",
+    "seed": "node --env-file-if-exists=.env.local --import tsx ./scripts/seed-dev.ts",
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "typecheck": "turbo run typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "db:generate": "pnpm --filter @compass/db generate",
+    "db:migrate": "pnpm --filter @compass/db migrate",
+    "db:push:sqlite": "pnpm --filter @compass/db push:sqlite",
+    "db:push:pg": "pnpm --filter @compass/db push:pg",
+    "web": "pnpm --filter @compass/web dev",
+    "cli": "pnpm --filter @compass/cli dev --",
+    "helper": "pnpm --filter @compass/helper tauri dev",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.10.0",
+    "@vitest/coverage-v8": "^2.1.6",
+    "tsx": "^4.19.2",
+    "turbo": "^2.3.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.6"
+  }
+}
