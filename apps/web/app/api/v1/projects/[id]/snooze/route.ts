@@ -1,9 +1,9 @@
-import type { NextRequest } from 'next/server';
+import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
 import * as projectsQ from '@compass/db/queries/projects';
 import * as stallQ from '@compass/db/queries/stall';
-import { snoozeSchema } from '@compass/shared/zod';
 import { ApiError } from '@compass/shared';
-import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
+import { snoozeSchema } from '@compass/shared/zod';
+import type { NextRequest } from 'next/server';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

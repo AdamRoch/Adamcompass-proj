@@ -1,13 +1,13 @@
-import type { NextRequest } from 'next/server';
-import * as learningQ from '@compass/db/queries/learning';
-import * as notesQ from '@compass/db/queries/notes';
-import * as activityQ from '@compass/db/queries/activity';
-import * as resourcesQ from '@compass/db/queries/resources';
-import * as tagsQ from '@compass/db/queries/tags';
-import { updateLearningGoalSchema } from '@compass/shared/zod';
-import { ApiError } from '@compass/shared';
 import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
 import { indexLearningGoal } from '@/lib/index-entity';
+import * as activityQ from '@compass/db/queries/activity';
+import * as learningQ from '@compass/db/queries/learning';
+import * as notesQ from '@compass/db/queries/notes';
+import * as resourcesQ from '@compass/db/queries/resources';
+import * as tagsQ from '@compass/db/queries/tags';
+import { ApiError } from '@compass/shared';
+import { updateLearningGoalSchema } from '@compass/shared/zod';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

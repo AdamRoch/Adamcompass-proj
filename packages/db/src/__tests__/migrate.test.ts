@@ -10,10 +10,10 @@
 // If we ever refactor migrate.ts into an exportable `runMigrations()` library function, this is
 // the test that should call it directly.
 
-import Database from 'better-sqlite3';
+import { DEFAULT_SETTINGS } from '@compass/shared';
+import type Database from 'better-sqlite3';
 import { describe, expect, it } from 'vitest';
 import { setupTestDb } from '../../../../tests/helpers/db.js';
-import { DEFAULT_SETTINGS } from '@compass/shared';
 
 const CORE_TABLES = [
   'user',
@@ -43,7 +43,9 @@ describe('migrations', () => {
     const handle = setupTestDb();
     const raw = handle.raw as Database.Database;
     const found = raw
-      .prepare(`SELECT name FROM sqlite_master WHERE type IN ('table') AND name NOT LIKE 'sqlite_%'`)
+      .prepare(
+        `SELECT name FROM sqlite_master WHERE type IN ('table') AND name NOT LIKE 'sqlite_%'`,
+      )
       .all() as Array<{ name: string }>;
     const names = new Set(found.map((r) => r.name));
     for (const t of CORE_TABLES) {
@@ -63,7 +65,7 @@ describe('migrations', () => {
     // Ensure we can actually INSERT + SELECT via the virtual table.
     raw
       .prepare(
-        `INSERT INTO search_index (entity_type, entity_id, title, body, tags) VALUES (?, ?, ?, ?, ?)`,
+        'INSERT INTO search_index (entity_type, entity_id, title, body, tags) VALUES (?, ?, ?, ?, ?)',
       )
       .run('note', '01ABCDEFGHJKMNPQRSTUVWXYZ0', 'hello world', 'a body about ships', 'demo');
     const rows = raw
@@ -75,7 +77,7 @@ describe('migrations', () => {
   it('seeds the settings singleton row', () => {
     const handle = setupTestDb();
     const raw = handle.raw as Database.Database;
-    const row = raw.prepare(`SELECT * FROM settings WHERE id = ?`).get('SINGLETON') as
+    const row = raw.prepare('SELECT * FROM settings WHERE id = ?').get('SINGLETON') as
       | { id: string; data_json: string; updated_at: string }
       | undefined;
     expect(row).toBeTruthy();

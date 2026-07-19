@@ -6,8 +6,8 @@
 // Both share the same requireAuth() helper, so passing through them exercises the auth surface.
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { setupTestDb } from '../../../tests/helpers/db.js';
 import { createBearer } from '../../../tests/helpers/auth.js';
+import { setupTestDb } from '../../../tests/helpers/db.js';
 import { GET as inboxGet } from '../app/api/v1/inbox/route.js';
 import { POST as projectsPost } from '../app/api/v1/projects/route.js';
 

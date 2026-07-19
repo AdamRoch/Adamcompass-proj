@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react';
 import { cn } from '@/lib/cn';
+import * as React from 'react';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   /** Leading icon node, rendered inside the input frame. */

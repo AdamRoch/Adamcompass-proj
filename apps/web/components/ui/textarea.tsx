@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react';
 import { cn } from '@/lib/cn';
+import * as React from 'react';
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   /** When true, grows to fit content (height auto-adjusts on input). */
@@ -36,7 +36,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
     const el = innerRef.current;
     if (!el || !autoResize) return;
     el.style.height = 'auto';
-    const lineHeight = parseFloat(getComputedStyle(el).lineHeight || '20') || 20;
+    const lineHeight = Number.parseFloat(getComputedStyle(el).lineHeight || '20') || 20;
     const max = lineHeight * maxRows;
     const next = Math.min(el.scrollHeight, max);
     el.style.height = `${next}px`;
@@ -44,6 +44,7 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(fun
   }, [autoResize, maxRows]);
 
   // Resize on mount and whenever the controlled value changes.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: value/defaultValue are intentional triggers, not used inside
   React.useEffect(() => {
     resize();
   }, [resize, rest.value, rest.defaultValue]);

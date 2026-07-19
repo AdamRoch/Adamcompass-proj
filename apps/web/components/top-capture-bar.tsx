@@ -1,11 +1,11 @@
 'use client';
 
-import * as React from 'react';
-import { Command, Plus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Kbd } from '@/components/ui/kbd';
 import { toast } from '@/components/ui/toast';
 import { cn } from '@/lib/cn';
+import { Command, Plus, Search } from 'lucide-react';
+import * as React from 'react';
 
 const CLIENT_ID_KEY = 'compass.client_id';
 
@@ -117,6 +117,7 @@ export function TopCaptureBar({ onOpenPalette }: TopCaptureBarProps) {
     <form
       onSubmit={handleSubmit}
       className={cn('flex w-full items-center gap-2')}
+      // biome-ignore lint/a11y/useSemanticElements: role="search" on the form is the established landmark pattern here
       role="search"
       aria-label="Quick capture"
     >

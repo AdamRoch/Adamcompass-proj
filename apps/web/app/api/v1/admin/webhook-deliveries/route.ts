@@ -1,6 +1,6 @@
-import type { NextRequest } from 'next/server';
-import * as webhookQ from '@compass/db/queries/webhook';
 import { fromApiError, ok, requireAuth } from '@/lib/api';
+import * as webhookQ from '@compass/db/queries/webhook';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {

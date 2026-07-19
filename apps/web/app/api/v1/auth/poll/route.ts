@@ -1,8 +1,8 @@
-import { NextResponse, type NextRequest } from 'next/server';
-import { z } from 'zod';
+import { fromApiError, rateLimit } from '@/lib/api';
 import * as authQ from '@compass/db/queries/auth';
 import { ApiError } from '@compass/shared';
-import { fromApiError, rateLimit } from '@/lib/api';
+import { type NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 const bodySchema = z.object({ device_code: z.string().min(8).max(128) });
 
@@ -26,13 +26,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: 'denied' });
     }
     if (dc.denied) return NextResponse.json({ status: 'denied' });
-    if (!dc.approved || !dc.token_id) {
+    if (!dc.approved || !dc.pending_plain_token) {
       return NextResponse.json({ status: 'pending' });
     }
-    // The plain token is briefly stashed in device_code.token_id during approval. We return it
-    // exactly once, then immediately delete the row so the secret has no DB persistence beyond
-    // the polling window.
-    const plainToken = dc.token_id;
+    // The plain token is briefly stashed in device_code.pending_plain_token during approval.
+    // We return it exactly once, then immediately delete the row so the secret has no DB
+    // persistence beyond the polling window.
+    const plainToken = dc.pending_plain_token;
     await authQ.deleteDeviceCode(body.device_code);
     return NextResponse.json({ status: 'approved', token: plainToken });
   } catch (e) {

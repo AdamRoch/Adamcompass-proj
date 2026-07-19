@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
+import { cn } from '@/lib/cn';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
-import { cn } from '@/lib/cn';
+import * as React from 'react';
 
 export const Select = SelectPrimitive.Root;
 export const SelectGroup = SelectPrimitive.Group;
@@ -45,7 +45,10 @@ export const SelectScrollUpButton = React.forwardRef<
   return (
     <SelectPrimitive.ScrollUpButton
       ref={ref}
-      className={cn('flex cursor-default items-center justify-center py-1 text-text-muted', className)}
+      className={cn(
+        'flex cursor-default items-center justify-center py-1 text-text-muted',
+        className,
+      )}
       {...rest}
     >
       <ChevronUp className="size-4" aria-hidden />
@@ -60,7 +63,10 @@ export const SelectScrollDownButton = React.forwardRef<
   return (
     <SelectPrimitive.ScrollDownButton
       ref={ref}
-      className={cn('flex cursor-default items-center justify-center py-1 text-text-muted', className)}
+      className={cn(
+        'flex cursor-default items-center justify-center py-1 text-text-muted',
+        className,
+      )}
       {...rest}
     >
       <ChevronDown className="size-4" aria-hidden />
@@ -84,13 +90,16 @@ export const SelectContent = React.forwardRef<
           'data-[state=open]:animate-popover-in',
           'data-[state=closed]:animate-popover-out',
           'origin-[var(--radix-select-content-transform-origin)]',
-          position === 'popper' && 'data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1',
+          position === 'popper' &&
+            'data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1',
           className,
         )}
         {...rest}
       >
         <SelectScrollUpButton />
-        <SelectPrimitive.Viewport className={cn('p-1', position === 'popper' && 'h-[var(--radix-select-trigger-height)]')}>
+        <SelectPrimitive.Viewport
+          className={cn('p-1', position === 'popper' && 'h-[var(--radix-select-trigger-height)]')}
+        >
           {children}
         </SelectPrimitive.Viewport>
         <SelectScrollDownButton />

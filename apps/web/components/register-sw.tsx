@@ -30,7 +30,7 @@ export function RegisterSW(): null {
       const controller = navigator.serviceWorker.controller;
       if (controller) {
         controller.postMessage({ type: 'compass:drain-outbox' });
-      } else if (registration && registration.active) {
+      } else if (registration?.active) {
         registration.active.postMessage({ type: 'compass:drain-outbox' });
       }
     };

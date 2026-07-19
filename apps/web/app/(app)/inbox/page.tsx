@@ -1,13 +1,14 @@
-import * as React from 'react';
-import { Inbox as InboxIcon, Sparkles } from 'lucide-react';
-import * as notesQ from '@compass/db/queries/notes';
-import * as projectsQ from '@compass/db/queries/projects';
-import * as learningQ from '@compass/db/queries/learning';
-import * as settingsQ from '@compass/db/queries/settings';
-import { humanRelative } from '@compass/shared';
+import { NoteEditor } from '@/components/note-editor';
+import { PromoteCuriosityButton } from '@/components/promote-curiosity-button';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { renderMarkdown } from '@/lib/markdown';
+import * as learningQ from '@compass/db/queries/learning';
+import * as notesQ from '@compass/db/queries/notes';
+import * as projectsQ from '@compass/db/queries/projects';
+import * as settingsQ from '@compass/db/queries/settings';
+import { humanRelative } from '@compass/shared';
+import { Inbox as InboxIcon, Sparkles } from 'lucide-react';
 import { FilePopover } from './file-popover';
 
 export const dynamic = 'force-dynamic';
@@ -44,8 +45,8 @@ export default async function InboxPage() {
           </p>
         </div>
         <div className="text-sm text-text-muted">
-          <span className="font-semibold tabular-nums text-text-primary">{notes.length}</span>{' '}
-          item{notes.length === 1 ? '' : 's'}
+          <span className="font-semibold tabular-nums text-text-primary">{notes.length}</span> item
+          {notes.length === 1 ? '' : 's'}
         </div>
       </header>
 
@@ -60,13 +61,7 @@ export default async function InboxPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {notes.map((note) => (
-            <InboxItem
-              key={note.id}
-              note={note}
-              tz={tz}
-              projects={projectOpts}
-              goals={goalOpts}
-            />
+            <InboxItem key={note.id} note={note} tz={tz} projects={projectOpts} goals={goalOpts} />
           ))}
         </div>
       )}
@@ -98,9 +93,7 @@ function InboxItem({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex items-center gap-2 text-2xs text-text-muted">
-            <span
-              className="inline-flex items-center gap-1 rounded-sm bg-accent-soft px-1.5 py-0.5 font-semibold uppercase tracking-[0.05em] text-accent"
-            >
+            <span className="inline-flex items-center gap-1 rounded-sm bg-accent-soft px-1.5 py-0.5 font-semibold uppercase tracking-[0.05em] text-accent">
               <InboxIcon className="size-2.5" aria-hidden />
               {hintLabel}
             </span>
@@ -112,12 +105,17 @@ function InboxItem({
           {note.title ? (
             <h3 className="mb-1 text-sm font-medium text-text-primary">{note.title}</h3>
           ) : null}
-          <div
-            className="prose-compass text-sm text-text-primary [&>*+*]:mt-1.5 [&_a]:text-accent [&_a:hover]:underline [&_code]:rounded-xs [&_code]:bg-surface-elevated [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          <NoteEditor noteId={note.id} body={note.body_markdown} title={note.title}>
+            <div
+              className="prose-compass text-sm text-text-primary [&>*+*]:mt-1.5 [&_a]:text-accent [&_a:hover]:underline [&_code]:rounded-xs [&_code]:bg-surface-elevated [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </NoteEditor>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {note.inbox_type_hint === 'curiosity' ? (
+            <PromoteCuriosityButton noteId={note.id} />
+          ) : null}
           <FilePopover noteId={note.id} projects={projects} goals={goals} />
         </div>
       </div>

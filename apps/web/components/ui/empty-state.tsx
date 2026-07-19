@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { cn } from '@/lib/cn';
+import type * as React from 'react';
 
 export interface EmptyStateProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   /** Optional icon node (e.g. a lucide icon). Rendered centered above title. */

@@ -1,15 +1,14 @@
-import * as React from 'react';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import * as notifQ from '@compass/db/queries/notifications';
-import * as webhookQ from '@compass/db/queries/webhook';
-import * as adminQ from '@compass/db/queries/admin';
-import type { NotificationRow } from '@compass/db/queries/notifications';
-import type { WebhookDeliveryRow } from '@compass/db/queries/webhook';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/cn';
+import * as adminQ from '@compass/db/queries/admin';
+import * as notifQ from '@compass/db/queries/notifications';
+import type { NotificationRow } from '@compass/db/queries/notifications';
+import * as webhookQ from '@compass/db/queries/webhook';
+import type { WebhookDeliveryRow } from '@compass/db/queries/webhook';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 

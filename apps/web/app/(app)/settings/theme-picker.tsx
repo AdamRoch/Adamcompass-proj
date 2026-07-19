@@ -1,6 +1,4 @@
 'use client';
-
-import * as React from 'react';
 import { ThemeSwitcher } from '@/components/ui/theme-switcher';
 
 /**

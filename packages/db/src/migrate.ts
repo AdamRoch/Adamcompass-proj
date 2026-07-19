@@ -3,14 +3,13 @@
 //
 // Usage: pnpm db:migrate
 
-import { migrate as migrateSqlite } from 'drizzle-orm/better-sqlite3/migrator';
-import { migrate as migratePg } from 'drizzle-orm/postgres-js/migrator';
-import { sql } from 'drizzle-orm';
 import { mkdirSync } from 'node:fs';
 import { dirname, isAbsolute, resolve } from 'node:path';
+import { migrate as migrateSqlite } from 'drizzle-orm/better-sqlite3/migrator';
+import { migrate as migratePg } from 'drizzle-orm/postgres-js/migrator';
 import { createDb } from './index.js';
-import { SEARCH_INDEX_CREATE_SQL as SQLITE_SEARCH_SQL } from './schema/sqlite.js';
 import { SEARCH_INDEX_CREATE_SQL as PG_SEARCH_SQL } from './schema/pg.js';
+import { SEARCH_INDEX_CREATE_SQL as SQLITE_SEARCH_SQL } from './schema/sqlite.js';
 
 async function main() {
   // Ensure the SQLite data directory exists BEFORE createDb() tries to open the file.
@@ -40,7 +39,7 @@ async function main() {
     console.log('[migrate] sqlite + FTS5 virtual table ok');
   } else {
     await migratePg(handle.db as never, { migrationsFolder: folder });
-    await handle.db.execute(PG_SEARCH_SQL);
+    await (handle.db as unknown as import('./index.js').PgDb).execute(PG_SEARCH_SQL);
     console.log('[migrate] postgres + tsvector index ok');
   }
 

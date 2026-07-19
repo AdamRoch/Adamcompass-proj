@@ -2,14 +2,14 @@
 // The file route moves a note from the inbox to a target entity and writes an activity_event on
 // both the note and the parent (per packages/db/src/queries/notes.ts).
 
+import type Database from 'better-sqlite3';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { setupTestDb } from '../../../tests/helpers/db.js';
-import { createBearer } from '../../../tests/helpers/auth.js';
-import { GET as inboxGet } from '../app/api/v1/inbox/route.js';
-import { POST as filePost } from '../app/api/v1/inbox/[id]/file/route.js';
 import * as capturesQ from '../../../packages/db/src/queries/captures.js';
 import * as projectsQ from '../../../packages/db/src/queries/projects.js';
-import Database from 'better-sqlite3';
+import { createBearer } from '../../../tests/helpers/auth.js';
+import { setupTestDb } from '../../../tests/helpers/db.js';
+import { POST as filePost } from '../app/api/v1/inbox/[id]/file/route.js';
+import { GET as inboxGet } from '../app/api/v1/inbox/route.js';
 
 describe('GET /api/v1/inbox', () => {
   beforeEach(() => {
@@ -59,21 +59,18 @@ describe('POST /api/v1/inbox/:id/file', () => {
     });
     const project = await projectsQ.createProject({ title: 'home' });
     const bearer = await createBearer({ scope: 'cli' });
-    const req = new Request(
-      `http://localhost:3000/api/v1/inbox/${capture.note_id}/file`,
-      {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          authorization: bearer.header,
-        },
-        body: JSON.stringify({
-          target: 'existing',
-          target_type: 'project',
-          target_id: project.id,
-        }),
+    const req = new Request(`http://localhost:3000/api/v1/inbox/${capture.note_id}/file`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: bearer.header,
       },
-    );
+      body: JSON.stringify({
+        target: 'existing',
+        target_type: 'project',
+        target_id: project.id,
+      }),
+    });
     const res = await filePost(req as never, {
       params: Promise.resolve({ id: capture.note_id }),
     });
@@ -107,17 +104,14 @@ describe('POST /api/v1/inbox/:id/file', () => {
       tags: [],
     });
     const bearer = await createBearer({ scope: 'cli' });
-    const req = new Request(
-      `http://localhost:3000/api/v1/inbox/${capture.note_id}/file`,
-      {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          authorization: bearer.header,
-        },
-        body: JSON.stringify({ target: 'new_project', title: 'Sprouted from inbox' }),
+    const req = new Request(`http://localhost:3000/api/v1/inbox/${capture.note_id}/file`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: bearer.header,
       },
-    );
+      body: JSON.stringify({ target: 'new_project', title: 'Sprouted from inbox' }),
+    });
     const res = await filePost(req as never, {
       params: Promise.resolve({ id: capture.note_id }),
     });
@@ -137,21 +131,18 @@ describe('POST /api/v1/inbox/:id/file', () => {
     const bearer = await createBearer({ scope: 'cli' });
     const projectId = (await projectsQ.createProject({ title: 'tgt' })).id;
     const bogusNoteId = '01ABCDEFGHJKMNPQRSTUVWXYZ0';
-    const req = new Request(
-      `http://localhost:3000/api/v1/inbox/${bogusNoteId}/file`,
-      {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          authorization: bearer.header,
-        },
-        body: JSON.stringify({
-          target: 'existing',
-          target_type: 'project',
-          target_id: projectId,
-        }),
+    const req = new Request(`http://localhost:3000/api/v1/inbox/${bogusNoteId}/file`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: bearer.header,
       },
-    );
+      body: JSON.stringify({
+        target: 'existing',
+        target_type: 'project',
+        target_id: projectId,
+      }),
+    });
     const res = await filePost(req as never, {
       params: Promise.resolve({ id: bogusNoteId }),
     });

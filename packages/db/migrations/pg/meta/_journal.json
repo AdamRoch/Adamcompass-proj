@@ -15,6 +15,13 @@
       "when": 1764000000000,
       "tag": "0001_notifications_retry",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784700000000,
+      "tag": "0002_v2",
+      "breakpoints": true
     }
   ]
 }

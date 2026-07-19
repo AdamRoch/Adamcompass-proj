@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
+import { cn } from '@/lib/cn';
 import * as ToastPrimitive from '@radix-ui/react-toast';
 import { X } from 'lucide-react';
-import { cn } from '@/lib/cn';
+import * as React from 'react';
 
 // ----------------------------------------------------------------------------
 // Toast store (tiny, framework-free)
@@ -174,10 +174,7 @@ export function Toaster() {
               ) : null}
               {t.description ? (
                 <ToastPrimitive.Description
-                  className={cn(
-                    'text-xs text-text-muted',
-                    t.title ? 'mt-0.5' : '',
-                  )}
+                  className={cn('text-xs text-text-muted', t.title ? 'mt-0.5' : '')}
                 >
                   {t.description}
                 </ToastPrimitive.Description>

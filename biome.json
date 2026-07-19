@@ -27,12 +27,15 @@
     "rules": {
       "recommended": true,
       "style": {
-        "noNonNullAssertion": "warn",
+        "noNonNullAssertion": "off",
         "useImportType": "error"
       },
       "suspicious": {
         "noConsole": "off",
         "noExplicitAny": "warn"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "warn"
       },
       "correctness": {
         "noUnusedVariables": "warn",

@@ -1,7 +1,7 @@
-import type { NextRequest } from 'next/server';
-import * as authQ from '@compass/db/queries/auth';
-import { authenticateBearer } from '@/lib/auth';
 import { fromApiError, ok } from '@/lib/api';
+import { authenticateBearer } from '@/lib/auth';
+import * as authQ from '@compass/db/queries/auth';
+import type { NextRequest } from 'next/server';
 
 // CLI/helper calls this on logout to revoke their own token.
 export async function POST(req: NextRequest) {

@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react';
 import { cn } from '@/lib/cn';
+import * as React from 'react';
 
 export interface ListItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   /** Leading icon / glyph. */
@@ -69,20 +69,13 @@ export const ListItem = React.forwardRef<HTMLDivElement, ListItemProps>(function
       ) : null}
       <div className="min-w-0 flex-1">
         <div
-          className={cn(
-            'truncate text-text-primary',
-            dense ? 'text-sm' : 'text-sm font-medium',
-          )}
+          className={cn('truncate text-text-primary', dense ? 'text-sm' : 'text-sm font-medium')}
         >
           {title}
         </div>
-        {meta ? (
-          <div className="truncate text-xs text-text-muted">{meta}</div>
-        ) : null}
+        {meta ? <div className="truncate text-xs text-text-muted">{meta}</div> : null}
       </div>
-      {badges ? (
-        <div className="inline-flex shrink-0 items-center gap-1.5">{badges}</div>
-      ) : null}
+      {badges ? <div className="inline-flex shrink-0 items-center gap-1.5">{badges}</div> : null}
       {trailing ? (
         <div className="inline-flex shrink-0 items-center gap-1 text-text-muted">{trailing}</div>
       ) : null}

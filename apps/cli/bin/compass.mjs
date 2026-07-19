@@ -1,9 +1,9 @@
 #!/usr/bin/env node
+import { spawn } from 'node:child_process';
 // Thin shim: prefer the compiled JS, fall back to running the TS source via tsx for dev.
 import { existsSync } from 'node:fs';
-import { spawn } from 'node:child_process';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const built = resolve(here, '..', 'dist', 'index.js');
@@ -15,11 +15,9 @@ if (existsSync(built)) {
   // Dev: re-exec ourselves with `node --import tsx` so the TS source is loadable.
   // We re-exec rather than register tsx in-process to keep this shim small + portable
   // across tsx versions (the programmatic register API has shifted between releases).
-  const child = spawn(
-    process.execPath,
-    ['--import', 'tsx', src, ...process.argv.slice(2)],
-    { stdio: 'inherit' },
-  );
+  const child = spawn(process.execPath, ['--import', 'tsx', src, ...process.argv.slice(2)], {
+    stdio: 'inherit',
+  });
   child.on('exit', (code, signal) => {
     if (signal) {
       process.kill(process.pid, signal);

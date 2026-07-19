@@ -1,7 +1,7 @@
-import Database from 'better-sqlite3';
 import { getDb } from '@compass/db';
-import type { IndexInput, SearchHit, SearchProvider } from './index.js';
 import type { EntityType } from '@compass/shared';
+import type Database from 'better-sqlite3';
+import type { IndexInput, SearchHit, SearchProvider } from './index.js';
 
 export function createFts5Provider(): SearchProvider {
   return {
@@ -12,19 +12,21 @@ export function createFts5Provider(): SearchProvider {
       }
       const raw = handle.raw as Database.Database;
       const tagsStr = input.tags.join(' ');
-      raw.prepare(
-        `DELETE FROM search_index WHERE entity_type = ? AND entity_id = ?`,
-      ).run(input.entity_type, input.entity_id);
-      raw.prepare(
-        `INSERT INTO search_index (entity_type, entity_id, title, body, tags) VALUES (?, ?, ?, ?, ?)`,
-      ).run(input.entity_type, input.entity_id, input.title ?? '', input.body ?? '', tagsStr);
+      raw
+        .prepare('DELETE FROM search_index WHERE entity_type = ? AND entity_id = ?')
+        .run(input.entity_type, input.entity_id);
+      raw
+        .prepare(
+          'INSERT INTO search_index (entity_type, entity_id, title, body, tags) VALUES (?, ?, ?, ?, ?)',
+        )
+        .run(input.entity_type, input.entity_id, input.title ?? '', input.body ?? '', tagsStr);
     },
     async removeEntity({ entity_type, entity_id }) {
       const handle = getDb();
       const raw = handle.raw as Database.Database;
-      raw.prepare(
-        `DELETE FROM search_index WHERE entity_type = ? AND entity_id = ?`,
-      ).run(entity_type, entity_id);
+      raw
+        .prepare('DELETE FROM search_index WHERE entity_type = ? AND entity_id = ?')
+        .run(entity_type, entity_id);
     },
     async query({ q, types, tags, limit = 20 }): Promise<SearchHit[]> {
       const handle = getDb();
@@ -40,7 +42,7 @@ export function createFts5Provider(): SearchProvider {
       if (tags && tags.length > 0) {
         // OR-match on tags via additional MATCH against tags column. Each tag must be quoted
         // so multi-word or non-ASCII tags don't break FTS5 query parsing.
-        tagFilter = ` AND tags MATCH ?`;
+        tagFilter = ' AND tags MATCH ?';
         const quoted = tags
           .map((t) => t.replace(/["()*]/g, ' ').trim())
           .filter(Boolean)

@@ -49,7 +49,11 @@ export function startOfDayInTz(iso: string, tz: string): Date {
 }
 
 // Resolve "HH:MM" in a given TZ on a given UTC instant to a UTC ISO string for that wall time today.
-export function resolveLocalTimeToday(timeHHMM: string, tz: string, ref: Date = new Date()): string {
+export function resolveLocalTimeToday(
+  timeHHMM: string,
+  tz: string,
+  ref: Date = new Date(),
+): string {
   const [hStr, mStr] = timeHHMM.split(':');
   const h = Number(hStr ?? '0');
   const m = Number(mStr ?? '0');

@@ -28,10 +28,9 @@ export async function runLogin(opts: LoginOptions): Promise<number> {
   const envBase = process.env.COMPASS_BASE_URL?.trim();
   const baseUrl = (opts.baseUrl ?? envBase ?? '').trim();
   if (!baseUrl) {
-    console.error(kleur.red('error: ') + 'no base URL provided.');
+    console.error(`${kleur.red('error: ')}no base URL provided.`);
     console.error(
-      'Hint: ' +
-        kleur.dim('compass login --base-url https://compass.example.com  OR  set COMPASS_BASE_URL'),
+      `Hint: ${kleur.dim('compass login --base-url https://compass.example.com  OR  set COMPASS_BASE_URL')}`,
     );
     return 1;
   }
@@ -53,7 +52,8 @@ export async function runLogin(opts: LoginOptions): Promise<number> {
   console.log(
     kleur.dim(
       `Waiting up to ${
-        (opts.maxAttempts ?? DEFAULT_MAX_ATTEMPTS) * (opts.interval ?? device.interval ?? DEFAULT_INTERVAL_S)
+        (opts.maxAttempts ?? DEFAULT_MAX_ATTEMPTS) *
+        (opts.interval ?? device.interval ?? DEFAULT_INTERVAL_S)
       }s for approval…`,
     ),
   );
@@ -77,11 +77,11 @@ export async function runLogin(opts: LoginOptions): Promise<number> {
           label: `cli on ${hostname()}`,
         });
         console.log('');
-        console.log(kleur.green('logged in') + kleur.dim(` — credentials saved.`));
+        console.log(kleur.green('logged in') + kleur.dim(' — credentials saved.'));
         return 0;
       }
       if (res.status === 'denied') {
-        console.error(kleur.red('denied') + ' — login was rejected.');
+        console.error(`${kleur.red('denied')} — login was rejected.`);
         return 1;
       }
       // pending — keep polling.
@@ -95,7 +95,7 @@ export async function runLogin(opts: LoginOptions): Promise<number> {
     }
   }
 
-  console.error(kleur.red('error: ') + 'login timed out before approval.');
+  console.error(`${kleur.red('error: ')}login timed out before approval.`);
   console.error(kleur.dim('Hint: re-run `compass login` to try again.'));
   return 1;
 }
@@ -123,9 +123,9 @@ function printLoginError(prefix: string, err: unknown): void {
   if (err instanceof CompassApiError) {
     const body = err.body as { error?: { message?: string } } | null;
     const msg = body?.error?.message ?? `HTTP ${err.status}`;
-    console.error(kleur.red('error: ') + `${prefix}: ${msg}`);
+    console.error(`${kleur.red('error: ')}${prefix}: ${msg}`);
   } else {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error(kleur.red('error: ') + `${prefix}: ${msg}`);
+    console.error(`${kleur.red('error: ')}${prefix}: ${msg}`);
   }
 }

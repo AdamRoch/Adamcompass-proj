@@ -33,9 +33,7 @@ md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
 function sanitizeInput(raw: string): string {
   // Belt-and-braces: even though html: false rejects raw tags, we still strip
   // the most dangerous markers if some upstream caller re-enables html.
-  return raw
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '');
+  return raw.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '');
 }
 
 export function renderMarkdown(body: string): string {

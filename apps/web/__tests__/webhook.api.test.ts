@@ -8,13 +8,13 @@
 //   - replay with same (run_id, event_seq) → 200, duplicate=true
 
 import { createHmac } from 'node:crypto';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { setupTestDb } from '../../../tests/helpers/db.js';
-import { createBearer } from '../../../tests/helpers/auth.js';
 import { newUlid } from '@compass/shared';
-import { POST } from '../app/webhooks/v1/runs/events/route.js';
+import type Database from 'better-sqlite3';
+import { beforeEach, describe, expect, it } from 'vitest';
 import * as projectsQ from '../../../packages/db/src/queries/projects.js';
-import Database from 'better-sqlite3';
+import { createBearer } from '../../../tests/helpers/auth.js';
+import { setupTestDb } from '../../../tests/helpers/db.js';
+import { POST } from '../app/webhooks/v1/runs/events/route.js';
 
 function sign(body: string): string {
   return `sha256=${createHmac('sha256', process.env.COMPASS_WEBHOOK_HMAC_SECRET!)
@@ -110,9 +110,9 @@ describe('POST /webhooks/v1/runs/events', () => {
     expect(evts.length).toBeGreaterThanOrEqual(1);
     expect(evts.every((e) => e.event_type === 'run_event')).toBe(true);
 
-    const runRow = raw
-      .prepare(`SELECT status FROM build_run WHERE id=?`)
-      .get(run_id) as { status: string } | undefined;
+    const runRow = raw.prepare('SELECT status FROM build_run WHERE id=?').get(run_id) as
+      | { status: string }
+      | undefined;
     expect(runRow?.status).toBe('running'); // 'started' event maps to 'running' status
   });
 
@@ -152,7 +152,7 @@ describe('POST /webhooks/v1/runs/events', () => {
     const handle = (await import('@compass/db')).getDb();
     const raw = handle.raw as Database.Database;
     const rows = raw
-      .prepare(`SELECT count(*) as c FROM run_event_dedup WHERE run_id=? AND event_seq=?`)
+      .prepare('SELECT count(*) as c FROM run_event_dedup WHERE run_id=? AND event_seq=?')
       .get(run_id, 7) as { c: number };
     expect(rows.c).toBe(1);
   });

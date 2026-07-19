@@ -1,12 +1,13 @@
 import './globals.css';
-import type { Metadata, Viewport } from 'next';
 import * as settingsQ from '@compass/db/queries/settings';
+import type { Metadata, Viewport } from 'next';
 
 export const metadata: Metadata = {
   title: 'Compass',
   description: 'A personal dashboard for projects, learning, and notes.',
   icons: {
     icon: '/favicon.svg',
+    apple: '/apple-touch-icon.png',
   },
   manifest: '/manifest.webmanifest',
 };

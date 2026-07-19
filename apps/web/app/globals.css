@@ -63,7 +63,7 @@
 
 /* ---------- white_minimal (default) ---------- */
 :root,
-:root[data-theme='white_minimal'] {
+:root[data-theme="white_minimal"] {
   /* legacy --color-* aliases — kept for components built against earlier token names */
   --color-background: var(--bg, 220 14% 98%);
   --color-surface: var(--surface, 0 0% 100%);
@@ -109,9 +109,7 @@
   --glass-border: 220 14% 90%;
   --glass-border-alpha: 0.6;
   --glass-inner-highlight: inset 0 1px 0 hsl(0 0% 100% / 0.8);
-  --glass-outer-shadow:
-    0 1px 2px hsl(220 12% 20% / 0.04),
-    0 8px 24px hsl(220 12% 20% / 0.06);
+  --glass-outer-shadow: 0 1px 2px hsl(220 12% 20% / 0.04), 0 8px 24px hsl(220 12% 20% / 0.06);
   --elev-1: 0 1px 2px hsl(220 12% 20% / 0.04);
   --elev-2: 0 2px 4px hsl(220 12% 20% / 0.05), 0 4px 12px hsl(220 12% 20% / 0.05);
   --elev-3: 0 1px 2px hsl(220 12% 20% / 0.04), 0 8px 24px hsl(220 12% 20% / 0.06);
@@ -120,7 +118,7 @@
   --overlay-alpha: 0.25;
 }
 
-:root[data-theme='dark_minimal'] {
+:root[data-theme="dark_minimal"] {
   --bg: 222 18% 8%;
   --bg-ambient: 222 22% 6%;
   --surface: 222 14% 12%;
@@ -145,9 +143,7 @@
   --glass-border: 0 0% 100%;
   --glass-border-alpha: 0.06;
   --glass-inner-highlight: inset 0 1px 0 hsl(0 0% 100% / 0.05);
-  --glass-outer-shadow:
-    0 1px 2px hsl(0 0% 0% / 0.4),
-    0 12px 32px hsl(0 0% 0% / 0.35);
+  --glass-outer-shadow: 0 1px 2px hsl(0 0% 0% / 0.4), 0 12px 32px hsl(0 0% 0% / 0.35);
   --elev-1: 0 1px 2px hsl(0 0% 0% / 0.3);
   --elev-2: 0 2px 4px hsl(0 0% 0% / 0.35), 0 6px 16px hsl(0 0% 0% / 0.35);
   --elev-3: 0 1px 2px hsl(0 0% 0% / 0.4), 0 12px 32px hsl(0 0% 0% / 0.4);
@@ -156,7 +152,7 @@
   --overlay-alpha: 0.4;
 }
 
-:root[data-theme='outer_space'] {
+:root[data-theme="outer_space"] {
   --bg: 245 38% 7%;
   --bg-ambient: 260 50% 5%;
   --surface: 245 28% 13%;
@@ -181,9 +177,7 @@
   --glass-border: 280 60% 70%;
   --glass-border-alpha: 0.18;
   --glass-inner-highlight: inset 0 1px 0 hsl(280 100% 90% / 0.08);
-  --glass-outer-shadow:
-    0 1px 2px hsl(260 60% 4% / 0.6),
-    0 16px 40px hsl(260 80% 4% / 0.55);
+  --glass-outer-shadow: 0 1px 2px hsl(260 60% 4% / 0.6), 0 16px 40px hsl(260 80% 4% / 0.55);
   --elev-1: 0 1px 2px hsl(0 0% 0% / 0.35);
   --elev-2: 0 2px 4px hsl(0 0% 0% / 0.4), 0 6px 16px hsl(260 60% 4% / 0.4);
   --elev-3: 0 1px 2px hsl(0 0% 0% / 0.45), 0 12px 32px hsl(260 60% 4% / 0.45);
@@ -192,7 +186,7 @@
   --overlay-alpha: 0.55;
 }
 
-:root[data-theme='white_sand'] {
+:root[data-theme="white_sand"] {
   --bg: 36 38% 94%;
   --bg-ambient: 200 50% 92%;
   --surface: 38 50% 97%;
@@ -217,18 +211,16 @@
   --glass-border: 36 30% 70%;
   --glass-border-alpha: 0.45;
   --glass-inner-highlight: inset 0 1px 0 hsl(38 60% 99% / 0.9);
-  --glass-outer-shadow:
-    0 1px 3px hsl(28 30% 30% / 0.08),
-    0 10px 28px hsl(28 25% 35% / 0.10);
+  --glass-outer-shadow: 0 1px 3px hsl(28 30% 30% / 0.08), 0 10px 28px hsl(28 25% 35% / 0.1);
   --elev-1: 0 1px 2px hsl(28 30% 30% / 0.06);
   --elev-2: 0 2px 4px hsl(28 30% 30% / 0.07), 0 4px 12px hsl(28 25% 35% / 0.08);
-  --elev-3: 0 1px 3px hsl(28 30% 30% / 0.08), 0 10px 28px hsl(28 25% 35% / 0.10);
-  --elev-4: 0 4px 8px hsl(28 25% 30% / 0.10), 0 24px 48px hsl(28 25% 30% / 0.14);
+  --elev-3: 0 1px 3px hsl(28 30% 30% / 0.08), 0 10px 28px hsl(28 25% 35% / 0.1);
+  --elev-4: 0 4px 8px hsl(28 25% 30% / 0.1), 0 24px 48px hsl(28 25% 30% / 0.14);
   --overlay: 28 30% 20%;
-  --overlay-alpha: 0.30;
+  --overlay-alpha: 0.3;
 }
 
-:root[data-theme='dark_forest'] {
+:root[data-theme="dark_forest"] {
   --bg: 150 22% 8%;
   --bg-ambient: 155 30% 6%;
   --surface: 150 18% 13%;
@@ -252,10 +244,8 @@
   --glass-blur-filter: blur(24px) saturate(1.35);
   --glass-border: 90 30% 60%;
   --glass-border-alpha: 0.18;
-  --glass-inner-highlight: inset 0 1px 0 hsl(90 40% 80% / 0.10);
-  --glass-outer-shadow:
-    0 1px 2px hsl(150 40% 4% / 0.5),
-    0 14px 36px hsl(150 50% 4% / 0.45);
+  --glass-inner-highlight: inset 0 1px 0 hsl(90 40% 80% / 0.1);
+  --glass-outer-shadow: 0 1px 2px hsl(150 40% 4% / 0.5), 0 14px 36px hsl(150 50% 4% / 0.45);
   --elev-1: 0 1px 2px hsl(150 40% 4% / 0.35);
   --elev-2: 0 2px 4px hsl(150 40% 4% / 0.4), 0 6px 16px hsl(150 50% 4% / 0.4);
   --elev-3: 0 1px 2px hsl(150 40% 4% / 0.45), 0 12px 32px hsl(150 50% 4% / 0.45);
@@ -271,9 +261,7 @@
     backdrop-filter: var(--glass-blur-filter);
     -webkit-backdrop-filter: var(--glass-blur-filter);
     border: 1px solid hsl(var(--glass-border, var(--border)) / var(--glass-border-alpha));
-    box-shadow:
-      var(--glass-inner-highlight),
-      var(--glass-outer-shadow);
+    box-shadow: var(--glass-inner-highlight), var(--glass-outer-shadow);
   }
   .surface-glass-sm {
     backdrop-filter: blur(8px) saturate(1.1);
@@ -300,9 +288,76 @@
     outline: none;
   }
   .focus-ring:focus-visible {
-    box-shadow:
-      0 0 0 2px hsl(var(--bg)),
-      0 0 0 4px hsl(var(--focus-ring) / var(--focus-ring-alpha, 0.5));
+    box-shadow: 0 0 0 2px hsl(var(--bg)), 0 0 0 4px
+      hsl(var(--focus-ring) / var(--focus-ring-alpha, 0.5));
+  }
+
+  /* ---------- Motion utilities (design spec §5) ---------- */
+  .anim-rise {
+    animation: compass-rise var(--dur-dialog-in) var(--ease-out-quart) both;
+  }
+  /* Staggered section reveals — apply anim-rise + one of these on successive cards. */
+  .anim-d1 {
+    animation-delay: 40ms;
+  }
+  .anim-d2 {
+    animation-delay: 80ms;
+  }
+  .anim-d3 {
+    animation-delay: 120ms;
+  }
+  .anim-d4 {
+    animation-delay: 160ms;
+  }
+  .anim-d5 {
+    animation-delay: 200ms;
+  }
+
+  /* Interactive card affordance: subtle lift on hover, spec durations. */
+  .hover-lift {
+    transition: transform var(--dur-hover) var(--ease-out-quart), box-shadow var(--dur-hover)
+      var(--ease-out-quart);
+  }
+  .hover-lift:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--glass-inner-highlight), var(--elev-4);
+  }
+}
+
+@keyframes compass-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise {
+    animation: compass-fade 80ms linear both;
+  }
+  .anim-d1,
+  .anim-d2,
+  .anim-d3,
+  .anim-d4,
+  .anim-d5 {
+    animation-delay: 0ms;
+  }
+  .hover-lift,
+  .hover-lift:hover {
+    transform: none;
+  }
+}
+
+@keyframes compass-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -311,7 +366,7 @@ html,
 body {
   background-color: hsl(var(--bg));
   color: hsl(var(--text-primary));
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -326,11 +381,10 @@ body {
 
 /* Ambient gradient layer behind the app for themes that benefit from it */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(circle at 20% 0%, hsl(var(--bg-ambient) / 0.6) 0%, transparent 60%),
+  background: radial-gradient(circle at 20% 0%, hsl(var(--bg-ambient) / 0.6) 0%, transparent 60%),
     radial-gradient(circle at 80% 100%, hsl(var(--bg-ambient) / 0.4) 0%, transparent 60%);
   pointer-events: none;
   z-index: -1;

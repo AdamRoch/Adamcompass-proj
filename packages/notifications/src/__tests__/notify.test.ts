@@ -10,8 +10,8 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setupTestDb } from '../../../../tests/helpers/db.js';
-import * as settingsQ from '../../../db/src/queries/settings.js';
 import * as notifQ from '../../../db/src/queries/notifications.js';
+import * as settingsQ from '../../../db/src/queries/settings.js';
 import type { drainPending as DrainPendingT, notify as NotifyT } from '../index.js';
 
 function installFakeFetch() {
@@ -29,7 +29,10 @@ function installFakeFetch() {
 
 // Each test imports fresh module copies so the in-module `cached` notifier doesn't bleed env vars
 // across tests.
-async function freshModule(): Promise<{ notify: typeof NotifyT; drainPending: typeof DrainPendingT }> {
+async function freshModule(): Promise<{
+  notify: typeof NotifyT;
+  drainPending: typeof DrainPendingT;
+}> {
   vi.resetModules();
   return await import('../index.js');
 }

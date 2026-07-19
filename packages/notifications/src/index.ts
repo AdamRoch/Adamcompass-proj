@@ -1,7 +1,7 @@
-import type { NotificationKind } from '@compass/shared';
 import * as notif from '@compass/db/queries';
-import { isInQuietHours } from '@compass/shared';
 import { settings as settingsQ } from '@compass/db/queries';
+import type { NotificationKind } from '@compass/shared';
+import { isInQuietHours } from '@compass/shared';
 import { TelegramDirectProvider } from './telegram.js';
 
 export interface NotificationProvider {

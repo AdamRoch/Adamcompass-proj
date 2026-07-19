@@ -1,7 +1,7 @@
-import postgres from 'postgres';
 import { getDb } from '@compass/db';
-import type { IndexInput, SearchHit, SearchProvider } from './index.js';
 import type { EntityType } from '@compass/shared';
+import type postgres from 'postgres';
+import type { IndexInput, SearchHit, SearchProvider } from './index.js';
 
 export function createTsvectorProvider(): SearchProvider {
   return {
@@ -29,10 +29,14 @@ export function createTsvectorProvider(): SearchProvider {
       if (!trimmedQ) return [];
       const handle = getDb();
       const sql = handle.raw as ReturnType<typeof postgres>;
-      const typeFilter = types && types.length > 0 ? sql`AND entity_type = ANY(${types as unknown as string[]})` : sql``;
-      const tagFilter = tags && tags.length > 0
-        ? sql`AND tsv @@ plainto_tsquery('english', ${tags.join(' ')})`
-        : sql``;
+      const typeFilter =
+        types && types.length > 0
+          ? sql`AND entity_type = ANY(${types as unknown as string[]})`
+          : sql``;
+      const tagFilter =
+        tags && tags.length > 0
+          ? sql`AND tsv @@ plainto_tsquery('english', ${tags.join(' ')})`
+          : sql``;
       const rows = await sql<
         Array<{
           entity_type: EntityType;

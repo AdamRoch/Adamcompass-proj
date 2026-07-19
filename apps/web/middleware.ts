@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 // Minimal middleware. Heavy auth lives in route handlers (need DB access, which middleware can't do).
 // This just handles request-id and a basic CORS shape for the webhook endpoint.

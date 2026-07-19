@@ -1,8 +1,8 @@
-import type { NextRequest } from 'next/server';
-import * as resourcesQ from '@compass/db/queries/resources';
-import { ApiError } from '@compass/shared';
 import { fromApiError, ok, requireAuth } from '@/lib/api';
 import { indexResource } from '@/lib/index-entity';
+import * as resourcesQ from '@compass/db/queries/resources';
+import { ApiError } from '@compass/shared';
+import type { NextRequest } from 'next/server';
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

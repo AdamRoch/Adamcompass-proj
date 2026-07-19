@@ -1,7 +1,9 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { ThemeSwitcher } from '@/components/ui/theme-switcher';
+import { cn } from '@/lib/cn';
+import type { EntityType } from '@compass/shared';
 import { Command } from 'cmdk';
 import {
   BookOpen,
@@ -17,10 +19,8 @@ import {
   Sparkles,
   Target,
 } from 'lucide-react';
-import type { EntityType } from '@compass/shared';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { ThemeSwitcher } from '@/components/ui/theme-switcher';
-import { cn } from '@/lib/cn';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 interface SearchHit {
   entity_type: EntityType;
@@ -318,9 +318,7 @@ function PaletteRow({ icon, label, badge, shortcut, onSelect }: PaletteRowProps)
           {badge}
         </span>
       )}
-      {shortcut && (
-        <span className="font-mono text-2xs text-text-muted">{shortcut}</span>
-      )}
+      {shortcut && <span className="font-mono text-2xs text-text-muted">{shortcut}</span>}
     </Command.Item>
   );
 }

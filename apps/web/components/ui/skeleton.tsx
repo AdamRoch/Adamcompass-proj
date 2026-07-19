@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { cn } from '@/lib/cn';
+import type * as React from 'react';
 
 export type SkeletonVariant = 'line' | 'rect' | 'circle';
 
@@ -65,6 +65,7 @@ export function SkeletonText({
   return (
     <div className={cn('flex flex-col gap-2', className)}>
       {Array.from({ length: lines }, (_, index) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: static decorative rows, never reordered
         <Skeleton key={index} width={index === lines - 1 ? '60%' : '100%'} />
       ))}
     </div>

@@ -22,8 +22,7 @@
  * so this component is the single source of truth for "open the capture UI".
  */
 
-import * as React from 'react';
-import { INBOX_TYPE_HINTS, type InboxTypeHint } from '@compass/shared';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -32,12 +31,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { TagChip } from '@/components/ui/tag-chip';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/toast';
-import { cn } from '@/lib/cn';
 import { getClientId } from '@/lib/capture-client-id';
+import { cn } from '@/lib/cn';
+import { INBOX_TYPE_HINTS, type InboxTypeHint } from '@compass/shared';
+import * as React from 'react';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -142,7 +142,7 @@ export function CaptureModal({
       textareaRef.current?.focus();
       // Put caret at end if there is pre-seeded text.
       const el = textareaRef.current;
-      if (el && el.value) {
+      if (el?.value) {
         const len = el.value.length;
         try {
           el.setSelectionRange(len, len);
@@ -160,11 +160,18 @@ export function CaptureModal({
       const detail = (evt as CustomEvent<CaptureOpenEventDetail | undefined>).detail;
       if (detail) {
         if (typeof detail.body === 'string') setBody(detail.body);
-        if (detail.type_hint && (INBOX_TYPE_HINTS as readonly string[]).includes(detail.type_hint)) {
+        if (
+          detail.type_hint &&
+          (INBOX_TYPE_HINTS as readonly string[]).includes(detail.type_hint)
+        ) {
           setTypeHint(detail.type_hint);
         }
         if (Array.isArray(detail.tags)) {
-          setTags(detail.tags.filter((t) => typeof t === 'string' && t.length > 0).slice(0, TAG_MAX_COUNT));
+          setTags(
+            detail.tags
+              .filter((t) => typeof t === 'string' && t.length > 0)
+              .slice(0, TAG_MAX_COUNT),
+          );
         }
       }
       setOpen(true);
@@ -329,17 +336,14 @@ export function CaptureModal({
 
         <div className="px-5 pt-4 pb-2 space-y-3">
           {/* Type hint chip selector */}
-          <div
-            role="radiogroup"
-            aria-label="Type"
-            className="flex flex-wrap items-center gap-1.5"
-          >
+          <div role="radiogroup" aria-label="Type" className="flex flex-wrap items-center gap-1.5">
             {INBOX_TYPE_HINTS.map((hint) => {
               const active = hint === typeHint;
               return (
                 <button
                   key={hint}
                   type="button"
+                  // biome-ignore lint/a11y/useSemanticElements: styled segmented control; buttons in a radiogroup with aria-checked
                   role="radio"
                   aria-checked={active}
                   onClick={() => setTypeHint(hint)}
@@ -378,6 +382,7 @@ export function CaptureModal({
             >
               Tags
             </label>
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: click only re-delegates focus to the inner input; keyboard users Tab straight into it */}
             <div
               className={cn(
                 'flex flex-wrap items-center gap-1.5 rounded-md border border-border',
@@ -388,13 +393,16 @@ export function CaptureModal({
               onClick={(e) => {
                 // Clicking the chip rail focuses the input for fast adding.
                 if (e.target === e.currentTarget) {
-                  const el = document.getElementById('capture-tag-input') as HTMLInputElement | null;
+                  const el = document.getElementById(
+                    'capture-tag-input',
+                  ) as HTMLInputElement | null;
                   el?.focus();
                 }
               }}
             >
               {tags.map((tag, i) => (
                 <TagChip
+                  // biome-ignore lint/suspicious/noArrayIndexKey: duplicate tag text is possible mid-edit
                   key={`${tag}-${i}`}
                   interactive
                   onClick={() => removeTagAt(i)}
@@ -426,15 +434,12 @@ export function CaptureModal({
 
         <DialogFooter className="px-5 pb-5">
           {error ? (
-            <p
-              role="alert"
-              className="mr-auto text-xs text-danger"
-            >
+            <p role="alert" className="mr-auto text-xs text-danger">
               {error}
             </p>
           ) : (
             <p className="mr-auto text-xs text-text-subtle">
-              Esc to cancel  &middot;  &#8984;&#8629; to capture
+              Esc to cancel &middot; &#8984;&#8629; to capture
             </p>
           )}
           <Button

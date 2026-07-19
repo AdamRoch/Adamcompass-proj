@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation';
 import { currentUser, ensureSingleUserExists, setSession, verifyPassword } from '@/lib/auth';
 import * as authQ from '@compass/db/queries/auth';
+import { redirect } from 'next/navigation';
 
 function bootstrapAllowed(): boolean {
   return process.env.COMPASS_BOOTSTRAP_ALLOW_FIRST_USER === '1';
@@ -8,7 +8,9 @@ function bootstrapAllowed(): boolean {
 
 async function loginAction(formData: FormData) {
   'use server';
-  const email = String(formData.get('email') ?? '').trim().toLowerCase();
+  const email = String(formData.get('email') ?? '')
+    .trim()
+    .toLowerCase();
   const password = String(formData.get('password') ?? '');
   if (!email || !password) {
     return;
@@ -32,12 +34,12 @@ async function loginAction(formData: FormData) {
   if (!user) {
     redirect('/login?error=invalid');
   }
-  const ok = await verifyPassword(password, user!.password_hash);
+  const ok = await verifyPassword(password, user?.password_hash);
   if (!ok) {
     redirect('/login?error=invalid');
   }
-  await setSession(user!.id);
-  await authQ.recordLogin(user!.id);
+  await setSession(user?.id);
+  await authQ.recordLogin(user?.id);
   redirect('/');
 }
 
@@ -84,13 +86,11 @@ export default async function LoginPage({
             className="w-full rounded-md border bg-surface px-3 py-2 text-sm focus-ring"
           />
         </div>
-        {error === 'invalid' && (
-          <p className="text-sm text-danger">Wrong email or password.</p>
-        )}
+        {error === 'invalid' && <p className="text-sm text-danger">Wrong email or password.</p>}
         {(error === 'bootstrap_disabled' || (noUserYet && !canBootstrap)) && (
           <p className="text-sm text-danger">
-            No account exists yet. Set <code>COMPASS_BOOTSTRAP_ALLOW_FIRST_USER=1</code> in
-            the server environment and reload this page to create the first user.
+            No account exists yet. Set <code>COMPASS_BOOTSTRAP_ALLOW_FIRST_USER=1</code> in the
+            server environment and reload this page to create the first user.
           </p>
         )}
         <button

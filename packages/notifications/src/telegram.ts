@@ -1,9 +1,7 @@
 import type { NotificationProvider } from './index.js';
 
 export class TelegramDirectProvider implements NotificationProvider {
-  constructor(
-    private readonly opts: { botToken?: string; chatId?: string; baseUrl?: string },
-  ) {}
+  constructor(private readonly opts: { botToken?: string; chatId?: string; baseUrl?: string }) {}
 
   async send(args: {
     subject: string;
@@ -13,9 +11,7 @@ export class TelegramDirectProvider implements NotificationProvider {
     if (!this.opts.botToken || !this.opts.chatId) {
       return { id, status: 'failed', error: 'TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID missing' };
     }
-    const url =
-      (this.opts.baseUrl ?? 'https://api.telegram.org') +
-      `/bot${this.opts.botToken}/sendMessage`;
+    const url = `${this.opts.baseUrl ?? 'https://api.telegram.org'}/bot${this.opts.botToken}/sendMessage`;
     // We use MarkdownV2 for predictable rendering. Telegram requires every reserved char in
     // text segments to be backslash-escaped. The subject is treated as plain text (escaped in
     // full); the body is expected to already be MarkdownV2-safe — producers (digest, stall

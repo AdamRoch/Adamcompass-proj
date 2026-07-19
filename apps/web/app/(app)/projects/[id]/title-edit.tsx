@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
 import { toast } from '@/components/ui/toast';
 import { cn } from '@/lib/cn';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 export interface TitleEditProps {
   /** API path entity: `projects` or `learning-goals`. */

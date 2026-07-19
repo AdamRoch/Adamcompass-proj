@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import {
   currentUser,
   hashToken,
@@ -7,6 +6,7 @@ import {
   verifyCsrfToken,
 } from '@/lib/auth';
 import * as authQ from '@compass/db/queries/auth';
+import { redirect } from 'next/navigation';
 
 async function approveAction(formData: FormData) {
   'use server';
@@ -14,20 +14,23 @@ async function approveAction(formData: FormData) {
   const csrf = formData.get('csrf');
   const me = await currentUser();
   if (!me) redirect(`/login?next=/auth/device?code=${user_code}`);
-  if (!verifyCsrfToken(typeof csrf === 'string' ? csrf : null, me!.id)) {
+  if (!verifyCsrfToken(typeof csrf === 'string' ? csrf : null, me?.id)) {
     redirect(`/auth/device?code=${user_code}&error=csrf`);
   }
   const dc = await authQ.getDeviceCodeByUserCode(user_code);
   if (!dc) redirect(`/auth/device?code=${user_code}&error=expired`);
-  // Mint a token, save its hash to auth_token, and stash the *plain* in device_code.token_id
-  // for one-time pickup by the polling client.
+  // Mint a token, save its hash to auth_token, and stash the *plain* in
+  // device_code.pending_plain_token for one-time pickup by the polling client.
   const plain = newRandomToken(dc.scope === 'cli' ? 'cpsc' : 'cpsh');
   const created = await authQ.createToken({
     name: `${dc.scope} via device-code`,
     scope: dc.scope,
     token_hash: hashToken(plain),
   });
-  await authQ.approveDeviceCode(dc.device_code, plain);
+  await authQ.approveDeviceCode(dc.device_code, {
+    token_id: created.id,
+    pending_plain_token: plain,
+  });
   redirect(`/auth/device?code=${user_code}&approved=1&name=${encodeURIComponent(created.name)}`);
 }
 
@@ -37,7 +40,7 @@ async function denyAction(formData: FormData) {
   const csrf = formData.get('csrf');
   const me = await currentUser();
   if (!me) redirect(`/login?next=/auth/device?code=${user_code}`);
-  if (!verifyCsrfToken(typeof csrf === 'string' ? csrf : null, me!.id)) {
+  if (!verifyCsrfToken(typeof csrf === 'string' ? csrf : null, me?.id)) {
     redirect(`/auth/device?code=${user_code}&error=csrf`);
   }
   const dc = await authQ.getDeviceCodeByUserCode(user_code);
@@ -56,8 +59,8 @@ export default async function DeviceApprovePage({
   const denied = sp.denied === '1';
   const error = sp.error;
   const me = await currentUser();
-  if (!me) redirect(`/login`);
-  const csrf = issueCsrfToken(me!.id);
+  if (!me) redirect('/login');
+  const csrf = issueCsrfToken(me?.id);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12">

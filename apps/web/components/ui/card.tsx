@@ -1,5 +1,5 @@
-import * as React from 'react';
 import { cn } from '@/lib/cn';
+import * as React from 'react';
 
 export type CardVariant = 'default' | 'glass' | 'bare';
 export type CardPadding = 'none' | 'sm' | 'md' | 'lg';
@@ -55,10 +55,7 @@ export const CardTitle = React.forwardRef<
   return (
     <h3
       ref={ref}
-      className={cn(
-        'text-xs font-semibold uppercase tracking-[0.06em] text-text-muted',
-        className,
-      )}
+      className={cn('text-xs font-semibold uppercase tracking-[0.06em] text-text-muted', className)}
       {...rest}
     />
   );

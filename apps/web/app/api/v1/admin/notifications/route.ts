@@ -1,6 +1,6 @@
-import type { NextRequest } from 'next/server';
-import * as notifQ from '@compass/db/queries/notifications';
 import { fromApiError, ok, requireAuth } from '@/lib/api';
+import * as notifQ from '@compass/db/queries/notifications';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {

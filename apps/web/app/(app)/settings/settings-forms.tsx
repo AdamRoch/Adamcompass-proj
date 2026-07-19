@@ -1,13 +1,13 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import type { Settings } from '@compass/shared';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/components/ui/toast';
+import type { Settings } from '@compass/shared';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 interface PatchSettingsProps {
   initial: Settings;
@@ -188,8 +188,8 @@ export function StallsForm({ initial }: PatchSettingsProps) {
   return (
     <div className="space-y-4">
       <p className="text-xs text-text-muted">
-        Defaults applied to projects + learning goals without an explicit threshold. Smaller =
-        more aggressive nudging.
+        Defaults applied to projects + learning goals without an explicit threshold. Smaller = more
+        aggressive nudging.
       </p>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">

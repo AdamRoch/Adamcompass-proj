@@ -1,8 +1,8 @@
-import type { NextRequest } from 'next/server';
-import * as authQ from '@compass/db/queries/auth';
-import * as adminQ from '@compass/db/queries/admin';
-import { ApiError } from '@compass/shared';
 import { fromApiError, ok, requireAuth } from '@/lib/api';
+import * as adminQ from '@compass/db/queries/admin';
+import * as authQ from '@compass/db/queries/auth';
+import { ApiError } from '@compass/shared';
+import type { NextRequest } from 'next/server';
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

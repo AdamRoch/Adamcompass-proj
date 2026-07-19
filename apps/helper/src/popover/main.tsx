@@ -1,7 +1,6 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Popover } from './Popover.js';
 import { POPOVER_CSS } from '../lib/styles.js';
+import { Popover } from './Popover.js';
 
 const styleTag = document.createElement('style');
 styleTag.textContent = POPOVER_CSS;

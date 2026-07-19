@@ -1,23 +1,25 @@
-import * as React from 'react';
-import Link from 'next/link';
-import { Activity, Mail } from 'lucide-react';
-import * as settingsQ from '@compass/db/queries/settings';
+import { SignOutButton } from '@/components/sign-out-button';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { SignOutButton } from '@/components/sign-out-button';
 import { currentUser } from '@/lib/auth';
+import * as settingsQ from '@compass/db/queries/settings';
+import * as tagsQ from '@compass/db/queries/tags';
+import { Activity, Mail } from 'lucide-react';
+import Link from 'next/link';
 import { DensityToggle, NotificationsForm, StallsForm } from './settings-forms';
+import { TagsPanel } from './tags-panel';
 import { ThemePicker } from './theme-picker';
-import { TokensPanel } from './tokens-panel';
 import { listTokensAction } from './token-actions';
+import { TokensPanel } from './tokens-panel';
 
 export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
-  const [settings, tokens, user] = await Promise.all([
+  const [settings, tokens, user, tags] = await Promise.all([
     settingsQ.getSettings(),
     listTokensAction(),
     currentUser(),
+    tagsQ.listWithCounts().catch(() => []),
   ]);
 
   return (
@@ -42,6 +44,7 @@ export default async function SettingsPage() {
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="stalls">Stalls</TabsTrigger>
+          <TabsTrigger value="tags">Tags</TabsTrigger>
           <TabsTrigger value="tokens">Tokens</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
@@ -86,6 +89,15 @@ export default async function SettingsPage() {
               <CardTitle>Stall thresholds</CardTitle>
             </CardHeader>
             <StallsForm initial={settings} />
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="tags">
+          <Card variant="glass" padding="md">
+            <CardHeader>
+              <CardTitle>Tags</CardTitle>
+            </CardHeader>
+            <TagsPanel tags={tags} />
           </Card>
         </TabsContent>
 

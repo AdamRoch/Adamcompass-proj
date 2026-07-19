@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
 // Tauri 2 expects the frontend to ship a static bundle. We use multi-page mode
 // so the popover and settings windows can load independent HTML entrypoints
@@ -33,8 +33,7 @@ export default defineConfig(async () => ({
   },
   envPrefix: ['VITE_', 'TAURI_ENV_*'],
   build: {
-    target:
-      process.env.TAURI_ENV_PLATFORM === 'windows' ? 'chrome105' : 'safari13',
+    target: process.env.TAURI_ENV_PLATFORM === 'windows' ? 'chrome105' : 'safari13',
     minify: !process.env.TAURI_ENV_DEBUG ? 'esbuild' : false,
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
     rollupOptions: {

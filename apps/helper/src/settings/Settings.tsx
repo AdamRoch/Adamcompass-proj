@@ -1,19 +1,19 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { CompassApiError, CompassClient } from '@compass/api-client';
 import { invoke } from '@tauri-apps/api/core';
 import {
-  isEnabled as autostartIsEnabled,
-  enable as autostartEnable,
   disable as autostartDisable,
+  enable as autostartEnable,
+  isEnabled as autostartIsEnabled,
 } from '@tauri-apps/plugin-autostart';
-import { CompassClient, CompassApiError } from '@compass/api-client';
+import { useCallback, useEffect, useState } from 'react';
 import {
   DEFAULT_CONFIG,
+  type HelperConfig,
   loadConfig,
   rebindHotkey,
   saveConfig,
-  type HelperConfig,
 } from '../lib/config.js';
-import { getOutboxStats, type OutboxStats } from '../lib/outbox.js';
+import { type OutboxStats, getOutboxStats } from '../lib/outbox.js';
 
 type Save = { kind: 'idle' } | { kind: 'saved' } | { kind: 'error'; message: string };
 
@@ -150,12 +150,8 @@ export function Settings() {
         <button type="button" className="btn" onClick={onPing}>
           Test connection
         </button>
-        {pingState.kind === 'ok' && (
-          <span className="ok">connected — {pingState.ms}ms</span>
-        )}
-        {pingState.kind === 'err' && (
-          <span className="err">failed: {pingState.msg}</span>
-        )}
+        {pingState.kind === 'ok' && <span className="ok">connected — {pingState.ms}ms</span>}
+        {pingState.kind === 'err' && <span className="err">failed: {pingState.msg}</span>}
       </div>
 
       <h2>Hotkey</h2>
@@ -204,13 +200,13 @@ export function Settings() {
       <h2>Outbox</h2>
       {stats ? (
         <div>
-          <p>Pending: <strong>{stats.pending}</strong></p>
+          <p>
+            Pending: <strong>{stats.pending}</strong>
+          </p>
           {stats.last_attempt_at && (
             <p className="helper-text">last attempt: {stats.last_attempt_at}</p>
           )}
-          {stats.last_error && (
-            <p className="err">last error: {stats.last_error}</p>
-          )}
+          {stats.last_error && <p className="err">last error: {stats.last_error}</p>}
         </div>
       ) : (
         <p className="helper-text">no stats yet</p>

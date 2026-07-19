@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import type Database from 'better-sqlite3';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { setupTestDb } from '../../../../tests/helpers/db.js';
 import * as capturesQ from '../queries/captures.js';
@@ -79,13 +79,13 @@ describe('createCapture', () => {
       body: 'tagged note',
       tags: ['Area/AI', 'urgent'],
     });
-    const tagRows = raw.prepare(`SELECT name FROM tag ORDER BY name`).all() as Array<{
+    const tagRows = raw.prepare('SELECT name FROM tag ORDER BY name').all() as Array<{
       name: string;
     }>;
     expect(tagRows.map((r) => r.name)).toEqual(['area/ai', 'urgent']);
 
     const taggings = raw
-      .prepare(`SELECT count(*) as c FROM tagging WHERE entity_id = ?`)
+      .prepare('SELECT count(*) as c FROM tagging WHERE entity_id = ?')
       .get(res.note_id) as { c: number };
     expect(taggings.c).toBe(2);
   });
@@ -101,7 +101,7 @@ describe('createCapture', () => {
     });
     const evts = raw
       .prepare(
-        `SELECT event_type, entity_type, entity_id, payload_json FROM activity_event WHERE entity_id = ?`,
+        'SELECT event_type, entity_type, entity_id, payload_json FROM activity_event WHERE entity_id = ?',
       )
       .all(res.note_id) as Array<{
       event_type: string;

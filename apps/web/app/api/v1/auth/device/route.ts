@@ -1,8 +1,8 @@
 import { randomBytes } from 'node:crypto';
-import { NextResponse, type NextRequest } from 'next/server';
-import { z } from 'zod';
-import * as authQ from '@compass/db/queries/auth';
 import { fromApiError, rateLimit } from '@/lib/api';
+import * as authQ from '@compass/db/queries/auth';
+import { type NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 const bodySchema = z.object({ scope: z.enum(['cli', 'helper']) });
 
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       scope: body.scope,
       ttl_seconds: 600,
     });
-    const baseUrl = process.env.COMPASS_BASE_URL ?? `http://localhost:3000`;
+    const baseUrl = process.env.COMPASS_BASE_URL ?? 'http://localhost:3000';
     return NextResponse.json({
       device_code,
       user_code,

@@ -14,12 +14,18 @@ importers:
       '@playwright/test':
         specifier: ^1.49.0
         version: 1.60.0
+      '@types/better-sqlite3':
+        specifier: ^7.6.12
+        version: 7.6.13
       '@types/node':
         specifier: ^22.10.0
         version: 22.19.19
       '@vitest/coverage-v8':
         specifier: ^2.1.6
         version: 2.1.9(vitest@2.1.9(@types/node@22.19.19)(lightningcss@1.32.0))
+      better-sqlite3:
+        specifier: ^11.5.0
+        version: 11.10.0
       tsx:
         specifier: ^4.19.2
         version: 4.22.3
@@ -281,6 +287,15 @@ importers:
         specifier: workspace:*
         version: link:../shared
     devDependencies:
+      '@types/better-sqlite3':
+        specifier: ^7.6.12
+        version: 7.6.13
+      '@types/pg':
+        specifier: ^8.11.10
+        version: 8.20.0
+      drizzle-orm:
+        specifier: ^0.36.4
+        version: 0.36.4(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(@types/react@18.3.29)(better-sqlite3@11.10.0)(pg@8.21.0)(postgres@3.4.9)(react@19.2.6)
       typescript:
         specifier: ^5.6.3
         version: 5.9.3
@@ -315,10 +330,19 @@ importers:
       '@compass/shared':
         specifier: workspace:*
         version: link:../shared
+      better-sqlite3:
+        specifier: ^11.5.0
+        version: 11.10.0
       drizzle-orm:
         specifier: ^0.36.4
         version: 0.36.4(@types/better-sqlite3@7.6.13)(@types/pg@8.20.0)(@types/react@18.3.29)(better-sqlite3@11.10.0)(pg@8.21.0)(postgres@3.4.9)(react@19.2.6)
+      postgres:
+        specifier: ^3.4.5
+        version: 3.4.9
     devDependencies:
+      '@types/better-sqlite3':
+        specifier: ^7.6.12
+        version: 7.6.13
       typescript:
         specifier: ^5.6.3
         version: 5.9.3

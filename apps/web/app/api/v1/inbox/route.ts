@@ -1,6 +1,6 @@
-import type { NextRequest } from 'next/server';
-import * as notesQ from '@compass/db/queries/notes';
 import { fromApiError, ok, requireAuth } from '@/lib/api';
+import * as notesQ from '@compass/db/queries/notes';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {

@@ -1,8 +1,8 @@
 'use client';
 
-import * as React from 'react';
-import { Moon } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { Moon } from 'lucide-react';
+import type * as React from 'react';
 import { SimpleTooltip } from './tooltip';
 
 export interface SnoozeBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
@@ -20,8 +20,7 @@ function formatUntil(until: string): string {
   if (Number.isNaN(d.valueOf())) return until;
   const now = new Date();
   const sameYear = d.getFullYear() === now.getFullYear();
-  const within7 =
-    Math.abs(d.getTime() - now.getTime()) <= 1000 * 60 * 60 * 24 * 7 && d > now;
+  const within7 = Math.abs(d.getTime() - now.getTime()) <= 1000 * 60 * 60 * 24 * 7 && d > now;
   if (within7) {
     return d.toLocaleDateString(undefined, { weekday: 'short' });
   }
@@ -56,7 +55,9 @@ export function SnoozeBadge({ until, reason, className, ...rest }: SnoozeBadgePr
       <Moon className="size-2.5" aria-hidden />
       <span className="max-w-[120px] truncate">
         {label}
-        {truncatedReason ? <span className="font-normal text-text-muted"> · {truncatedReason}</span> : null}
+        {truncatedReason ? (
+          <span className="font-normal text-text-muted"> · {truncatedReason}</span>
+        ) : null}
       </span>
     </span>
   );

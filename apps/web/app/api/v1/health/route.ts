@@ -1,5 +1,5 @@
-import { getDb } from '@compass/db';
 import { ok } from '@/lib/api';
+import { getDb } from '@compass/db';
 
 export async function GET() {
   const handle = getDb();

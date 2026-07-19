@@ -59,9 +59,7 @@ self.addEventListener('activate', (event) => {
     (async () => {
       const names = await caches.keys();
       await Promise.all(
-        names
-          .filter((n) => n !== SHELL_CACHE && n !== RUNTIME_CACHE)
-          .map((n) => caches.delete(n)),
+        names.filter((n) => n !== SHELL_CACHE && n !== RUNTIME_CACHE).map((n) => caches.delete(n)),
       );
       await self.clients.claim();
       // Opportunistically drain on activate (e.g. after an update).
@@ -138,7 +136,7 @@ async function handleStaticAsset(req) {
   const cached = await cache.match(req);
   const networkPromise = fetch(req)
     .then((res) => {
-      if (res && res.ok) cache.put(req, res.clone());
+      if (res?.ok) cache.put(req, res.clone());
       return res;
     })
     .catch(() => null);
@@ -182,7 +180,9 @@ async function enqueueCaptureRequest(req) {
     } catch (_) {
       // If body wasn't JSON, we can't safely replay — fall back to error.
       return new Response(
-        JSON.stringify({ error: { code: 'offline_invalid_body', message: 'offline and body is not JSON' } }),
+        JSON.stringify({
+          error: { code: 'offline_invalid_body', message: 'offline and body is not JSON' },
+        }),
         { status: 503, headers: { 'Content-Type': 'application/json' } },
       );
     }
@@ -212,10 +212,10 @@ async function enqueueCaptureRequest(req) {
     const body = {
       queued: true,
       note: {
-        id: payload && payload.idem_key ? `pending:${payload.idem_key}` : 'pending',
-        body_markdown: payload && payload.body ? payload.body : '',
-        inbox_type_hint: (payload && payload.type_hint) || 'unspecified',
-        created_at: payload && payload.captured_at ? payload.captured_at : new Date().toISOString(),
+        id: payload?.idem_key ? `pending:${payload.idem_key}` : 'pending',
+        body_markdown: payload?.body ? payload.body : '',
+        inbox_type_hint: payload?.type_hint || 'unspecified',
+        created_at: payload?.captured_at ? payload.captured_at : new Date().toISOString(),
         pending: true,
       },
       duplicate: false,
@@ -229,7 +229,9 @@ async function enqueueCaptureRequest(req) {
     });
   } catch (e) {
     return new Response(
-      JSON.stringify({ error: { code: 'offline_enqueue_failed', message: String(e && e.message ? e.message : e) } }),
+      JSON.stringify({
+        error: { code: 'offline_enqueue_failed', message: String(e?.message ? e.message : e) },
+      }),
       { status: 503, headers: { 'Content-Type': 'application/json' } },
     );
   }
@@ -350,7 +352,12 @@ async function replayAll() {
       if (res.ok || res.status === 200 || res.status === 201 || res.status === 409) {
         await deleteEntry(entry.id);
         succeededAny = true;
-      } else if (res.status >= 400 && res.status < 500 && res.status !== 408 && res.status !== 429) {
+      } else if (
+        res.status >= 400 &&
+        res.status < 500 &&
+        res.status !== 408 &&
+        res.status !== 429
+      ) {
         // Permanent client error — drop so we don't loop forever.
         await deleteEntry(entry.id);
       } else {

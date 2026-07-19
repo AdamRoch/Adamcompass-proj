@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
+import { cn } from '@/lib/cn';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronRight, Circle } from 'lucide-react';
-import { cn } from '@/lib/cn';
+import * as React from 'react';
 
 export const DropdownMenu = DropdownMenuPrimitive.Root;
 export const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
@@ -180,7 +180,10 @@ export const DropdownMenuSeparator = React.forwardRef<
   );
 });
 
-export function DropdownMenuShortcut({ className, ...rest }: React.HTMLAttributes<HTMLSpanElement>) {
+export function DropdownMenuShortcut({
+  className,
+  ...rest
+}: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
       className={cn('ml-auto text-2xs uppercase tracking-[0.05em] text-text-muted', className)}

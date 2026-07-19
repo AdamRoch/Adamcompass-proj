@@ -1,5 +1,15 @@
-import * as React from 'react';
-import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { ListItem } from '@/components/ui/list-item';
+import { StagePill } from '@/components/ui/stage-pill';
+import { StallBadge } from '@/components/ui/stall-badge';
+import { cn } from '@/lib/cn';
+import * as buildRunsQ from '@compass/db/queries/build_runs';
+import * as dashboardQ from '@compass/db/queries/dashboard';
+import * as projectsQ from '@compass/db/queries/projects';
+import * as settingsQ from '@compass/db/queries/settings';
+import { daysAgoIso, humanRelative } from '@compass/shared';
 import {
   AlertTriangle,
   ArrowRight,
@@ -10,16 +20,8 @@ import {
   Target,
   Zap,
 } from 'lucide-react';
-import * as dashboardQ from '@compass/db/queries/dashboard';
-import * as settingsQ from '@compass/db/queries/settings';
-import { humanRelative } from '@compass/shared';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { ListItem } from '@/components/ui/list-item';
-import { StagePill } from '@/components/ui/stage-pill';
-import { StallBadge } from '@/components/ui/stall-badge';
-import { Button } from '@/components/ui/button';
-import { EmptyState } from '@/components/ui/empty-state';
-import { cn } from '@/lib/cn';
+import Link from 'next/link';
+import type * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,7 +58,12 @@ function GreetingHeader({ tz }: { tz: string }) {
   );
 }
 
-function Stat({ icon: Icon, label, value, href }: {
+function Stat({
+  icon: Icon,
+  label,
+  value,
+  href,
+}: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: number;
@@ -120,7 +127,7 @@ function PanelHeader({
 
 export default async function DashboardPage() {
   // Pull everything in parallel — these are independent reads.
-  const [momentum, attention, week, counts, settings] = await Promise.all([
+  const [momentum, attention, week, counts, settings, overnightRuns] = await Promise.all([
     dashboardQ.momentumStrip(7, 6).catch(() => []),
     dashboardQ.needsAttention().catch(() => []),
     dashboardQ.thisWeek(7).catch(() => ({ projects: [], learning_goals: [] })),
@@ -131,7 +138,20 @@ export default async function DashboardPage() {
       inbox_count: 0,
     })),
     settingsQ.getSettings().catch(() => null),
+    // "Overnight" = terminal runs in the last 24h — covers the queue-before-bed flow
+    // without needing per-user last-seen tracking.
+    buildRunsQ
+      .recentTerminal(daysAgoIso(1), 8)
+      .catch(() => []),
   ]);
+
+  const runProjects = new Map<string, string>();
+  for (const r of overnightRuns) {
+    if (!runProjects.has(r.project_id)) {
+      const p = await projectsQ.getProject(r.project_id).catch(() => null);
+      runProjects.set(r.project_id, p?.title ?? 'Unknown project');
+    }
+  }
 
   const tz = settings?.timezone ?? 'America/Chicago';
 
@@ -171,7 +191,7 @@ export default async function DashboardPage() {
       <GreetingHeader tz={tz} />
 
       {/* Counts row */}
-      <Card variant="glass" padding="sm">
+      <Card variant="glass" padding="sm" className="anim-rise">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           <Stat icon={Folder} label="projects" value={projectsTotal} href="/projects" />
           <span className="text-text-faint">·</span>
@@ -190,8 +210,64 @@ export default async function DashboardPage() {
         </div>
       </Card>
 
+      {/* Overnight run summary — only when an agent reported terminal runs in the last 24h */}
+      {overnightRuns.length > 0 ? (
+        <Card variant="glass" padding="md" className="anim-rise anim-d1">
+          <PanelHeader title="Overnight runs" count={overnightRuns.length} />
+          <div className="flex flex-col divide-y divide-border/40">
+            {overnightRuns.map((r) => {
+              const links: Array<{ kind: string; url: string; label?: string }> = JSON.parse(
+                r.links_json ?? '[]',
+              );
+              return (
+                <div key={r.id} className="flex items-start gap-3 py-2 text-sm">
+                  <span
+                    className={cn(
+                      'mt-0.5 inline-flex items-center rounded-sm px-1.5 py-0.5 text-2xs font-semibold uppercase',
+                      r.status === 'completed'
+                        ? 'bg-success/15 text-success'
+                        : 'bg-danger/15 text-danger',
+                    )}
+                  >
+                    {r.status}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/projects/${r.project_id}`}
+                      className="font-medium text-text-primary hover:underline"
+                    >
+                      {runProjects.get(r.project_id)}
+                    </Link>
+                    <span className="text-text-muted"> — {r.objective ?? 'Build run'}</span>
+                    {links.length > 0 ? (
+                      <span className="ml-2 inline-flex flex-wrap gap-1.5">
+                        {links.map((l) => (
+                          <a
+                            key={l.url}
+                            href={l.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-2xs text-accent hover:underline"
+                          >
+                            {l.label ?? l.kind}
+                          </a>
+                        ))}
+                      </span>
+                    ) : null}
+                  </div>
+                  <span className="shrink-0 text-2xs tabular-nums text-text-muted">
+                    {r.duration_ms ? `${Math.round(r.duration_ms / 1000)}s · ` : ''}
+                    {r.ended_at ? humanRelative(r.ended_at, new Date(), tz) : ''}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      ) : null}
+
       {/* Momentum strip */}
-      <Card variant="glass" padding="md">
+      <Card variant="glass" padding="md" className="anim-rise anim-d2">
         <PanelHeader title="Momentum · last 7 days" seeAllHref="/projects" />
         {momentum.length === 0 ? (
           <EmptyState
@@ -203,9 +279,7 @@ export default async function DashboardPage() {
           <div className="flex flex-col">
             {momentum.map((item) => {
               const href =
-                item.entity_type === 'project'
-                  ? `/projects/${item.id}`
-                  : `/learning/${item.id}`;
+                item.entity_type === 'project' ? `/projects/${item.id}` : `/learning/${item.id}`;
               const isProject = item.entity_type === 'project';
               return (
                 <ListItem
@@ -237,7 +311,7 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Needs attention */}
-        <Card variant="glass" padding="md">
+        <Card variant="glass" padding="md" className="anim-rise anim-d3">
           <PanelHeader title="Needs attention" count={attention.length} seeAllHref="/projects" />
           {attention.length === 0 ? (
             <EmptyState
@@ -249,9 +323,7 @@ export default async function DashboardPage() {
             <div className="flex flex-col">
               {attention.slice(0, 8).map((item) => {
                 const href =
-                  item.entity_type === 'project'
-                    ? `/projects/${item.id}`
-                    : `/learning/${item.id}`;
+                  item.entity_type === 'project' ? `/projects/${item.id}` : `/learning/${item.id}`;
                 const isProject = item.entity_type === 'project';
                 return (
                   <ListItem
@@ -259,11 +331,7 @@ export default async function DashboardPage() {
                     dense
                     href={href}
                     icon={
-                      isProject ? (
-                        <Folder className="size-3.5" />
-                      ) : (
-                        <Target className="size-3.5" />
-                      )
+                      isProject ? <Folder className="size-3.5" /> : <Target className="size-3.5" />
                     }
                     title={item.title}
                     meta={`last touched ${humanRelative(item.last_touched_at, new Date(), tz)}`}
@@ -276,7 +344,7 @@ export default async function DashboardPage() {
         </Card>
 
         {/* This week */}
-        <Card variant="glass" padding="md">
+        <Card variant="glass" padding="md" className="anim-rise anim-d4">
           <PanelHeader title="This week" count={thisWeekItems.length} />
           {thisWeekItems.length === 0 ? (
             <EmptyState
@@ -303,11 +371,7 @@ export default async function DashboardPage() {
                     dense
                     href={href}
                     icon={
-                      isProject ? (
-                        <Folder className="size-3.5" />
-                      ) : (
-                        <Target className="size-3.5" />
-                      )
+                      isProject ? <Folder className="size-3.5" /> : <Target className="size-3.5" />
                     }
                     title={item.title}
                     badges={
@@ -325,7 +389,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Activity placeholder + quick capture hint */}
-      <Card variant="glass" padding="md">
+      <Card variant="glass" padding="md" className="anim-rise anim-d5">
         <PanelHeader title="Quick capture" />
         <div className="flex items-center justify-between gap-3 text-sm text-text-muted">
           <p>

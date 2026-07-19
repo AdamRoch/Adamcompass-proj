@@ -11,13 +11,13 @@
 // Why not call Drizzle's `migrate()`? It works, but it leaves a `__drizzle_migrations` table behind
 // and is slower; we'd rather control the surface explicitly for tests.
 
-import Database from 'better-sqlite3';
 import { mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { resetCachedDb, getDb, createDb } from '@compass/db';
+import { getDb, resetCachedDb } from '@compass/db';
 import { resetCachedSearch } from '@compass/search';
 import { DEFAULT_SETTINGS, nowIso } from '@compass/shared';
+import type Database from 'better-sqlite3';
 import * as sqliteSchema from '../../packages/db/src/schema/sqlite.js';
 
 const MIGRATIONS_DIR = resolve(
@@ -74,9 +74,7 @@ function applyMigrations(raw: Database.Database) {
 function seedSettings(handle: ReturnType<typeof getDb>) {
   const raw = handle.raw as Database.Database;
   raw
-    .prepare(
-      `INSERT OR IGNORE INTO settings (id, data_json, updated_at) VALUES (?, ?, ?)`,
-    )
+    .prepare('INSERT OR IGNORE INTO settings (id, data_json, updated_at) VALUES (?, ?, ?)')
     .run('SINGLETON', JSON.stringify(DEFAULT_SETTINGS), nowIso());
 }
 

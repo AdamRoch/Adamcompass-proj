@@ -8,7 +8,7 @@ import { existsSync } from 'node:fs';
 import type { CompassClient } from '@compass/api-client';
 import { CompassApiError } from '@compass/api-client';
 import type { CaptureRequest } from '@compass/shared/zod';
-import { ensureConfigDir, OUTBOX_PATH, updateLastContact } from './config.js';
+import { OUTBOX_PATH, ensureConfigDir, updateLastContact } from './config.js';
 
 /** A single queued capture. */
 export interface OutboxEntry {
@@ -59,7 +59,7 @@ export async function rewriteOutbox(entries: OutboxEntry[]): Promise<void> {
     return;
   }
   const tmp = `${OUTBOX_PATH}.tmp`;
-  const payload = entries.map((e) => JSON.stringify(e)).join('\n') + '\n';
+  const payload = `${entries.map((e) => JSON.stringify(e)).join('\n')}\n`;
   await fs.writeFile(tmp, payload, { mode: 0o600 });
   await fs.rename(tmp, OUTBOX_PATH);
 }
@@ -122,7 +122,9 @@ export async function replayOutbox(client: CompassClient): Promise<ReplayResult>
       } else {
         // Network error — keep the entry, retry next invocation.
         remaining.push(entry);
-        failures.push(`entry ${entry.idem_key.slice(0, 8)}…: ${describeUnknownError(err)} (will retry)`);
+        failures.push(
+          `entry ${entry.idem_key.slice(0, 8)}…: ${describeUnknownError(err)} (will retry)`,
+        );
       }
     }
   }

@@ -1,19 +1,20 @@
-import * as React from 'react';
-import Link from 'next/link';
-import { BookOpen, Target } from 'lucide-react';
-import * as learningQ from '@compass/db/queries/learning';
-import * as tagsQ from '@compass/db/queries/tags';
-import * as settingsQ from '@compass/db/queries/settings';
-import { humanRelative, type LearningStatus } from '@compass/shared';
+import { PromoteCuriosityButton } from '@/components/promote-curiosity-button';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ListItem } from '@/components/ui/list-item';
-import { StallBadge } from '@/components/ui/stall-badge';
 import { SnoozeBadge } from '@/components/ui/snooze-badge';
-import { TagChip } from '@/components/ui/tag-chip';
+import { StallBadge } from '@/components/ui/stall-badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
+import { TagChip } from '@/components/ui/tag-chip';
 import { cn } from '@/lib/cn';
+import * as learningQ from '@compass/db/queries/learning';
+import * as notesQ from '@compass/db/queries/notes';
+import * as settingsQ from '@compass/db/queries/settings';
+import * as tagsQ from '@compass/db/queries/tags';
+import { type LearningStatus, humanRelative } from '@compass/shared';
+import { BookOpen, Target } from 'lucide-react';
+import Link from 'next/link';
 import { NewGoalDialog } from './new-goal-dialog';
 
 export const dynamic = 'force-dynamic';
@@ -84,12 +85,14 @@ export default async function LearningPage({
       ? (statusParam as LearningStatus)
       : undefined;
 
-  const [goalsRaw, settings] = await Promise.all([
+  const [goalsRaw, settings, inboxNotes] = await Promise.all([
     learningQ
       .listLearningGoals({ status: statusFilter, includeArchived, limit: 500 })
       .catch(() => []),
     settingsQ.getSettings().catch(() => null),
+    notesQ.listInbox(100).catch(() => []),
   ]);
+  const curiosities = inboxNotes.filter((n) => n.inbox_type_hint === 'curiosity');
 
   let goals = goalsRaw;
   if (statusParam === 'archived') {
@@ -134,9 +137,7 @@ export default async function LearningPage({
             Learning
           </h1>
           <p className="mt-1 text-sm text-text-muted">
-            <span className="font-semibold tabular-nums text-text-primary">
-              {filtered.length}
-            </span>{' '}
+            <span className="font-semibold tabular-nums text-text-primary">{filtered.length}</span>{' '}
             of {goalsWithTags.length} shown
           </p>
         </div>
@@ -149,6 +150,34 @@ export default async function LearningPage({
           <NewGoalDialog />
         </div>
       </header>
+
+      {/* Curiosity rail — unfiled curiosity captures waiting to become goals (PRD V2 §3.5) */}
+      {curiosities.length > 0 ? (
+        <Card variant="glass" padding="md">
+          <div className="mb-2 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-text-primary">Curiosities</h2>
+            <span className="inline-flex h-4 min-w-[18px] items-center justify-center rounded-full bg-surface-elevated px-1 text-2xs font-semibold text-text-muted">
+              {curiosities.length}
+            </span>
+            <span className="text-2xs text-text-muted">
+              captured with “curious about…” — promote the keepers
+            </span>
+          </div>
+          <ul className="flex flex-col divide-y divide-border/40">
+            {curiosities.map((c) => (
+              <li key={c.id} className="flex items-center gap-3 py-2">
+                <p className="min-w-0 flex-1 truncate text-sm text-text-primary">
+                  {c.title || c.body_markdown.split('\n')[0]}
+                </p>
+                <span className="shrink-0 text-2xs text-text-muted">
+                  {humanRelative(c.created_at, new Date(), tz)}
+                </span>
+                <PromoteCuriosityButton noteId={c.id} />
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
 
       <Tabs value={statusParam}>
         <TabsList className="flex flex-wrap">

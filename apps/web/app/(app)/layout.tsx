@@ -1,10 +1,10 @@
-import * as React from 'react';
-import * as settingsQ from '@compass/db/queries/settings';
 import { AppSidebar, getInboxCount } from '@/components/app-sidebar';
 import { AppTopbar } from '@/components/app-topbar';
 import { Providers } from '@/components/providers';
 import { SignOutButton } from '@/components/sign-out-button';
 import { requireUserOrRedirect } from '@/lib/auth';
+import * as settingsQ from '@compass/db/queries/settings';
+import type * as React from 'react';
 
 /**
  * App shell layout. Every page mounted under this group is auth-gated.
@@ -39,10 +39,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <div className="flex min-h-screen flex-1 flex-col">
-          <AppTopbar
-            inboxCount={inboxCount}
-            right={<SignOutButton variant="ghost" />}
-          />
+          <AppTopbar inboxCount={inboxCount} right={<SignOutButton variant="ghost" />} />
           <main className="flex-1 overflow-x-hidden px-6 py-6">
             <div className="mx-auto w-full max-w-[1440px]">{children}</div>
           </main>

@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { invoke } from '@tauri-apps/api/core';
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
-import { v4 as uuidv4 } from 'uuid';
-import { CompassClient, CompassApiError } from '@compass/api-client';
+import { CompassApiError, CompassClient } from '@compass/api-client';
 import type { InboxTypeHint } from '@compass/shared';
 import type { CaptureRequest } from '@compass/shared/zod';
-import { loadConfig, type HelperConfig } from '../lib/config.js';
+import { invoke } from '@tauri-apps/api/core';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { type HelperConfig, loadConfig } from '../lib/config.js';
 import { enqueueCapture } from '../lib/outbox.js';
 
 // Per PRD §8.4 we keep type-hint inference client-side via a tiny prefix
@@ -40,10 +41,12 @@ export function Popover() {
   // Load config once, focus the input, listen for re-show events so we can
   // reset state without unmounting the window (cheaper than tear-down).
   useEffect(() => {
-    loadConfig().then(setConfig).catch((e) => {
-      console.error(e);
-      setStatus({ kind: 'error', message: 'failed to load config' });
-    });
+    loadConfig()
+      .then(setConfig)
+      .catch((e) => {
+        console.error(e);
+        setStatus({ kind: 'error', message: 'failed to load config' });
+      });
     inputRef.current?.focus();
 
     const unlisten = win.listen('popover:reset', () => {
@@ -153,7 +156,6 @@ export function Popover() {
         placeholder="Capture to Compass… (! for idea, ? for curiosity)"
         onChange={(e) => setText(e.target.value)}
         onKeyDown={onKeyDown}
-        autoFocus
         spellCheck={false}
       />
       <div className="popover-hint">
@@ -163,9 +165,7 @@ export function Popover() {
           {status.kind === 'queued' && 'queued — will retry'}
           {status.kind === 'idle' && 'Enter to send · Esc to dismiss'}
         </span>
-        {status.kind === 'error' && (
-          <span className="popover-error">{status.message}</span>
-        )}
+        {status.kind === 'error' && <span className="popover-error">{status.message}</span>}
       </div>
     </div>
   );

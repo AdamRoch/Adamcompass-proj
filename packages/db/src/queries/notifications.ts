@@ -1,10 +1,5 @@
-import { and, desc, eq, lt, or, isNull } from 'drizzle-orm';
-import {
-  newUlid,
-  nowIso,
-  type NotificationKind,
-  type NotificationStatus,
-} from '@compass/shared';
+import { type NotificationKind, type NotificationStatus, newUlid, nowIso } from '@compass/shared';
+import { and, desc, eq, isNull, lt, or } from 'drizzle-orm';
 import { getDb } from '../index.js';
 
 const MAX_NOTIFICATION_RETRIES = 5;
@@ -121,7 +116,7 @@ export async function markFailed(id: string, error: string) {
     return;
   }
   // Backoff: 1, 2, 4, 8, 16 minutes — capped by MAX_NOTIFICATION_RETRIES.
-  const backoffMinutes = Math.pow(2, nextCount - 1);
+  const backoffMinutes = 2 ** (nextCount - 1);
   const next = new Date(Date.now() + backoffMinutes * 60 * 1000).toISOString();
   await handle.db
     .update(handle.schema.notifications)

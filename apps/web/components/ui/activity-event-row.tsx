@@ -1,6 +1,7 @@
 'use client';
 
-import * as React from 'react';
+import { cn } from '@/lib/cn';
+import type { ActivityEvent, ActivityEventType, EntityType } from '@compass/shared';
 import {
   Archive,
   ArchiveRestore,
@@ -19,8 +20,7 @@ import {
   Tag,
   Zap,
 } from 'lucide-react';
-import type { ActivityEvent, ActivityEventType, EntityType } from '@compass/shared';
-import { cn } from '@/lib/cn';
+import type * as React from 'react';
 
 // ---------------------------------------------------------------------------
 // Maps
@@ -140,8 +140,7 @@ export function ActivityEventRow({
         <Icon className="size-3.5" aria-hidden />
       </span>
       <div className="min-w-0 flex-1 text-sm text-text-primary">
-        <span className="text-text-muted">{verb}</span>{' '}
-        <span className="font-medium">{title}</span>
+        <span className="text-text-muted">{verb}</span> <span className="font-medium">{title}</span>
         <span className="text-text-subtle"> · {entityLabel}</span>
       </div>
       <span
@@ -151,7 +150,10 @@ export function ActivityEventRow({
         {when}
       </span>
       {href ? (
-        <ArrowRight className="size-3.5 shrink-0 text-text-subtle group-hover/aer:text-text-primary" aria-hidden />
+        <ArrowRight
+          className="size-3.5 shrink-0 text-text-subtle group-hover/aer:text-text-primary"
+          aria-hidden
+        />
       ) : null}
     </>
   );
@@ -164,7 +166,11 @@ export function ActivityEventRow({
 
   if (href) {
     return (
-      <a href={href} className={className_} {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
+      <a
+        href={href}
+        className={className_}
+        {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+      >
         {body}
       </a>
     );

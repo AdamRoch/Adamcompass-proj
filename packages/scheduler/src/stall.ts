@@ -8,12 +8,7 @@ import { escapeMarkdownV2, notify } from '@compass/notifications';
 export async function sweepStalls(now = new Date().toISOString()) {
   const stalled = await dashboardQ.needsAttention();
   for (const s of stalled) {
-    const decision = await stallQ.shouldFireStall(
-      s.entity_type,
-      s.id,
-      s.last_touched_at,
-      now,
-    );
+    const decision = await stallQ.shouldFireStall(s.entity_type, s.id, s.last_touched_at, now);
     if (decision === 'skip') continue;
 
     const verb = decision === 'reminder' ? 'Still stalled' : 'Stalled';

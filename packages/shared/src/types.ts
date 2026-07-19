@@ -105,9 +105,11 @@ export interface BaseEntity {
 
 export interface Project extends BaseEntity {
   title: string;
+  slug: string | null;
   summary: string | null;
   body_markdown: string | null;
   prd_url: string | null;
+  prd_markdown: string | null;
   stage: ProjectStage;
   status: ProjectStatus;
   progress_pct: number | null;

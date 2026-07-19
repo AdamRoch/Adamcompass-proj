@@ -1,9 +1,9 @@
-import type { NextRequest } from 'next/server';
-import * as learningQ from '@compass/db/queries/learning';
-import { createLearningGoalSchema } from '@compass/shared/zod';
 import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
 import { indexLearningGoal } from '@/lib/index-entity';
+import * as learningQ from '@compass/db/queries/learning';
 import type { LearningStatus } from '@compass/shared';
+import { createLearningGoalSchema } from '@compass/shared/zod';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {

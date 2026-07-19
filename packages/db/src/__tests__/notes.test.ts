@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import type Database from 'better-sqlite3';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { setupTestDb } from '../../../../tests/helpers/db.js';
 import * as capturesQ from '../queries/captures.js';

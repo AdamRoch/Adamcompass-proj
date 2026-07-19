@@ -9,11 +9,11 @@
 // This E2E spec covers the same flow over HTTP into a running server, using the admin tokens
 // endpoint (`POST /api/v1/admin/tokens`) to mint a webhook-scope bearer.
 
-import { test, expect } from '@playwright/test';
 import { createHmac } from 'node:crypto';
+import { expect, test } from '@playwright/test';
+import { signIn } from './login';
 
-const HMAC_SECRET =
-  process.env.COMPASS_WEBHOOK_HMAC_SECRET ?? 'e2e-hmac-secret-32chars-dddddddd';
+const HMAC_SECRET = process.env.COMPASS_WEBHOOK_HMAC_SECRET ?? 'e2e-hmac-secret-32chars-dddddddd';
 
 function sign(rawBody: string): string {
   return `sha256=${createHmac('sha256', HMAC_SECRET).update(rawBody).digest('hex')}`;
@@ -32,17 +32,8 @@ test.describe('webhook → activity event → dashboard', () => {
     page,
     request,
   }) => {
-    // Bootstrap login → session cookie.
-    await page.goto('/login');
-    const email = `e2e-webhook-${Date.now()}@example.com`;
-    await page.fill('input[name="email"]', email);
-    await page.fill('input[name="password"]', 'correct-horse-battery-staple');
-    await Promise.all([
-      page.waitForURL('**/'),
-      page.click('button[type="submit"]'),
-    ]);
-    const cookies = await page.context().cookies('http://localhost:3000');
-    const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join('; ');
+    // Sign in (bootstraps the shared e2e account on first run) → session cookie.
+    const cookieHeader = await signIn(page);
 
     // Create a project (cookie-authenticated, no bearer required).
     const projectRes = await request.post('/api/v1/projects', {

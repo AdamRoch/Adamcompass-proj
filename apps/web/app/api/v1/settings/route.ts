@@ -1,7 +1,7 @@
-import type { NextRequest } from 'next/server';
+import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
 import * as settingsQ from '@compass/db/queries/settings';
 import { settingsPatchSchema } from '@compass/shared/zod';
-import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
+import type { NextRequest } from 'next/server';
 
 // Fields whose values are baked into scheduler cron expressions. When any of these change we
 // need to re-register jobs so the new wall-clock times take effect.
@@ -29,8 +29,8 @@ export async function PATCH(req: NextRequest) {
     const settings = await settingsQ.patchSettings(body);
     // Restart scheduler if any cron-affecting field was touched, so the running process
     // picks up the new digest_send_time / quiet_hours_end / timezone without a redeploy.
-    const touched = SCHEDULER_RELEVANT_FIELDS.some(
-      (k) => Object.prototype.hasOwnProperty.call(body, k),
+    const touched = SCHEDULER_RELEVANT_FIELDS.some((k) =>
+      Object.prototype.hasOwnProperty.call(body, k),
     );
     if (touched) {
       try {

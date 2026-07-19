@@ -7,11 +7,7 @@
   "bin": {
     "compass": "./bin/compass.mjs"
   },
-  "files": [
-    "bin",
-    "dist",
-    "README.md"
-  ],
+  "files": ["bin", "dist", "README.md"],
   "scripts": {
     "dev": "node --import tsx ./src/index.ts",
     "start": "node ./dist/index.js",

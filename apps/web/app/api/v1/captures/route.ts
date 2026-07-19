@@ -1,10 +1,10 @@
-import type { NextRequest } from 'next/server';
-import { captureRequestSchema } from '@compass/shared/zod';
-import * as capturesQ from '@compass/db/queries/captures';
-import * as notesQ from '@compass/db/queries/notes';
-import * as adminQ from '@compass/db/queries/admin';
 import { err, fromApiError, ok, rateLimit, readJson, requireAuth } from '@/lib/api';
 import { indexNote } from '@/lib/index-entity';
+import * as adminQ from '@compass/db/queries/admin';
+import * as capturesQ from '@compass/db/queries/captures';
+import * as notesQ from '@compass/db/queries/notes';
+import { captureRequestSchema } from '@compass/shared/zod';
+import type { NextRequest } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {

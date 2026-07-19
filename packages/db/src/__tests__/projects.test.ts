@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import type Database from 'better-sqlite3';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { setupTestDb } from '../../../../tests/helpers/db.js';
 import * as projectsQ from '../queries/projects.js';
@@ -57,7 +57,7 @@ describe('projects queries', () => {
     const handle = (await import('@compass/db')).getDb();
     const raw = handle.raw as Database.Database;
     const evts = raw
-      .prepare(`SELECT event_type, payload_json FROM activity_event WHERE entity_id=?`)
+      .prepare('SELECT event_type, payload_json FROM activity_event WHERE entity_id=?')
       .all(p.id) as Array<{ event_type: string; payload_json: string }>;
     const u = evts.find((e) => e.event_type === 'updated');
     expect(u).toBeTruthy();
@@ -78,7 +78,7 @@ describe('projects queries', () => {
     const handle = (await import('@compass/db')).getDb();
     const raw = handle.raw as Database.Database;
     const evts = raw
-      .prepare(`SELECT event_type FROM activity_event WHERE entity_id=? ORDER BY occurred_at`)
+      .prepare('SELECT event_type FROM activity_event WHERE entity_id=? ORDER BY occurred_at')
       .all(p.id) as Array<{ event_type: string }>;
     expect(evts.some((e) => e.event_type === 'snoozed')).toBe(true);
     expect(evts.some((e) => e.event_type === 'unsnoozed')).toBe(true);

@@ -1,14 +1,14 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Folder, Inbox, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/toast';
 import { cn } from '@/lib/cn';
+import { Folder, Inbox, Target } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 export interface FilePopoverOption {
   id: string;
@@ -43,8 +43,7 @@ export function FilePopover({ noteId, projects, goals }: FilePopoverProps) {
     [projects, projectQuery],
   );
   const filteredGoals = React.useMemo(
-    () =>
-      goals.filter((g) => g.title.toLowerCase().includes(goalQuery.toLowerCase())).slice(0, 20),
+    () => goals.filter((g) => g.title.toLowerCase().includes(goalQuery.toLowerCase())).slice(0, 20),
     [goals, goalQuery],
   );
 

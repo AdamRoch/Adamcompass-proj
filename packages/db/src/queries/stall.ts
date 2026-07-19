@@ -1,5 +1,5 @@
-import { and, eq, lt } from 'drizzle-orm';
 import { addDaysIso, nowIso } from '@compass/shared';
+import { and, eq } from 'drizzle-orm';
 import { getDb } from '../index.js';
 
 export interface StallAlertState {

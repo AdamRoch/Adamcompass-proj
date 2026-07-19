@@ -1,7 +1,7 @@
-import type { NextRequest } from 'next/server';
-import { renderDigest } from '@compass/scheduler';
-import * as settingsQ from '@compass/db/queries/settings';
 import { fromApiError, ok, requireAuth } from '@/lib/api';
+import * as settingsQ from '@compass/db/queries/settings';
+import { renderDigest } from '@compass/scheduler';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {

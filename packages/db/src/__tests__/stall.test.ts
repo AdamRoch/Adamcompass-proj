@@ -8,10 +8,10 @@
 //   4. Older than 7 days since last alert → 'reminder'
 // Plus one extra: unsnoozed without touch should NOT auto-fire (the dedupe row already exists).
 
-import Database from 'better-sqlite3';
+import { addDaysIso, newUlid } from '@compass/shared';
+import type Database from 'better-sqlite3';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { setupTestDb } from '../../../../tests/helpers/db.js';
-import { addDaysIso, newUlid } from '@compass/shared';
 import * as stallQ from '../queries/stall.js';
 
 const TYPE = 'project';
@@ -69,10 +69,12 @@ describe('shouldFireStall', () => {
     // Manually backdate the row: alerted 8 days ago, suppression already expired.
     const handle = (await import('@compass/db')).getDb();
     const raw = handle.raw as Database.Database;
-    raw.prepare(
-      `INSERT INTO stall_alerts (entity_type, entity_id, last_alerted_at, alert_count, suppressed_until)
+    raw
+      .prepare(
+        `INSERT INTO stall_alerts (entity_type, entity_id, last_alerted_at, alert_count, suppressed_until)
        VALUES (?, ?, ?, 1, ?)`,
-    ).run(TYPE, id, addDaysIso(now, -8), addDaysIso(now, -1));
+      )
+      .run(TYPE, id, addDaysIso(now, -8), addDaysIso(now, -1));
     // Entity hasn't been touched since the original alert.
     const lastTouched = addDaysIso(now, -20);
     const decision = await stallQ.shouldFireStall(TYPE, id, lastTouched, now);
@@ -88,10 +90,12 @@ describe('shouldFireStall', () => {
     const now = '2026-05-23T12:00:00.000Z';
     const handle = (await import('@compass/db')).getDb();
     const raw = handle.raw as Database.Database;
-    raw.prepare(
-      `INSERT INTO stall_alerts (entity_type, entity_id, last_alerted_at, alert_count, suppressed_until)
+    raw
+      .prepare(
+        `INSERT INTO stall_alerts (entity_type, entity_id, last_alerted_at, alert_count, suppressed_until)
        VALUES (?, ?, ?, 1, ?)`,
-    ).run(TYPE, id, addDaysIso(now, -3), addDaysIso(now, -1));
+      )
+      .run(TYPE, id, addDaysIso(now, -3), addDaysIso(now, -1));
     const lastTouched = addDaysIso(now, -10);
     const decision = await stallQ.shouldFireStall(TYPE, id, lastTouched, now);
     expect(decision).toBe('skip');

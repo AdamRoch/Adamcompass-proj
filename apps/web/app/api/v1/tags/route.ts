@@ -1,7 +1,7 @@
-import type { NextRequest } from 'next/server';
+import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
 import * as tagsQ from '@compass/db/queries/tags';
 import { createTagSchema } from '@compass/shared/zod';
-import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {

@@ -6,21 +6,26 @@
 //         or:  node --import tsx scripts/seed-dev.ts
 
 import { createDb, resetCachedDb } from '../packages/db/src/index.js';
-import * as projectsQ from '../packages/db/src/queries/projects.js';
+import * as capturesQ from '../packages/db/src/queries/captures.js';
 import * as learningQ from '../packages/db/src/queries/learning.js';
 import * as notesQ from '../packages/db/src/queries/notes.js';
+import * as projectsQ from '../packages/db/src/queries/projects.js';
 import * as resourcesQ from '../packages/db/src/queries/resources.js';
-import * as capturesQ from '../packages/db/src/queries/captures.js';
 import * as tagsQ from '../packages/db/src/queries/tags.js';
-import { ensureSingleUserExists } from '../apps/web/lib/auth.js';
-import { newUlid, nowIso } from '../packages/shared/src/index.js';
 
 async function main() {
   resetCachedDb();
   createDb();
 
-  console.log('[seed] ensuring bootstrap user (seed@compass.local / seedpass)');
-  await ensureSingleUserExists('seed@compass.local', 'seedpass-do-not-use-in-prod');
+  // Web-app auth imports `server-only`, which resolves only inside apps/web — load it
+  // lazily so the seed also runs standalone against a DB that already has its user.
+  try {
+    const { ensureSingleUserExists } = await import('../apps/web/lib/auth.js');
+    console.log('[seed] ensuring bootstrap user (seed@compass.local / seedpass)');
+    await ensureSingleUserExists('seed@compass.local', 'seedpass-do-not-use-in-prod');
+  } catch {
+    console.log('[seed] skipping user bootstrap (web auth not importable in this context)');
+  }
 
   console.log('[seed] sample projects');
   const compass = await ensureProject({

@@ -4,10 +4,10 @@
 // `beforeEach` — that helper creates the actual schema. This file only seeds env vars so anything
 // reading them at module-load time doesn't fail.
 
-import { afterAll, beforeEach } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { afterAll, beforeEach } from 'vitest';
 
 const tmpDirs: string[] = [];
 

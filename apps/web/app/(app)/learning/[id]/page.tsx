@@ -1,23 +1,23 @@
-import * as React from 'react';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ArrowLeft, BookOpen, Calendar, ExternalLink, FileText, Target } from 'lucide-react';
-import * as learningQ from '@compass/db/queries/learning';
-import * as notesQ from '@compass/db/queries/notes';
-import * as resourcesQ from '@compass/db/queries/resources';
-import * as activityQ from '@compass/db/queries/activity';
-import * as tagsQ from '@compass/db/queries/tags';
-import * as settingsQ from '@compass/db/queries/settings';
-import * as checklistQ from '@compass/db/queries/checklist';
-import { humanRelative, type ActivityEvent, type Note } from '@compass/shared';
-import type { ResourceRow } from '@compass/db/queries/resources';
+import { ArchiveButton } from '@/components/archive-button';
 import { ActivityEventRow } from '@/components/ui/activity-event-row';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SnoozeBadge } from '@/components/ui/snooze-badge';
-import { TagChip } from '@/components/ui/tag-chip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TagChip } from '@/components/ui/tag-chip';
 import { renderMarkdown } from '@/lib/markdown';
+import * as activityQ from '@compass/db/queries/activity';
+import * as checklistQ from '@compass/db/queries/checklist';
+import * as learningQ from '@compass/db/queries/learning';
+import * as notesQ from '@compass/db/queries/notes';
+import * as resourcesQ from '@compass/db/queries/resources';
+import type { ResourceRow } from '@compass/db/queries/resources';
+import * as settingsQ from '@compass/db/queries/settings';
+import * as tagsQ from '@compass/db/queries/tags';
+import { type ActivityEvent, type Note, humanRelative } from '@compass/shared';
+import { ArrowLeft, BookOpen, Calendar, ExternalLink, FileText, Target } from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { AddNote } from '../../projects/[id]/add-note';
 import { SnoozePopover } from '../../projects/[id]/snooze-popover';
 import { TitleEdit } from '../../projects/[id]/title-edit';
@@ -44,9 +44,7 @@ export default async function LearningDetailPage({
   if (!goal) notFound();
 
   const notesP: Promise<Note[]> = notesQ.listNotesForEntity('learning_goal', id).catch(() => []);
-  const resP: Promise<ResourceRow[]> = resourcesQ
-    .list({ learning_goal_id: id })
-    .catch(() => []);
+  const resP: Promise<ResourceRow[]> = resourcesQ.list({ learning_goal_id: id }).catch(() => []);
   const actsP: Promise<ActivityEvent[]> = activityQ
     .listForEntity('learning_goal', id, 50)
     .catch(() => []);
@@ -110,7 +108,8 @@ export default async function LearningDetailPage({
               ))}
             </div>
           ) : null}
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-1.5">
+            <ArchiveButton entity="learning-goals" id={id} archived={goal.status === 'archived'} />
             <SnoozePopover entity="learning-goals" id={id} snoozedUntil={goal.snoozed_until} />
           </div>
         </div>

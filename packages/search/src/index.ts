@@ -1,5 +1,5 @@
-import type { EntityType } from '@compass/shared';
 import { getDb } from '@compass/db';
+import type { EntityType } from '@compass/shared';
 import { createFts5Provider } from './fts5.js';
 import { createTsvectorProvider } from './tsvector.js';
 

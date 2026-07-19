@@ -1,5 +1,5 @@
+import { type ReadingStatus, type ResourceKind, newUlid, nowIso } from '@compass/shared';
 import { and, desc, eq } from 'drizzle-orm';
-import { newUlid, nowIso, type ReadingStatus, type ResourceKind } from '@compass/shared';
 import { getDb } from '../index.js';
 import { touchEntity } from '../touch.js';
 

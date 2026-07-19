@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
+import { cn } from '@/lib/cn';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/cn';
+import type * as React from 'react';
 
 export interface SidebarNavLinkProps {
   href: string;

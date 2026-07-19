@@ -17,7 +17,10 @@ export async function runStatus(): Promise<number> {
   const dialect = baseUrl ? await fetchDialect(baseUrl) : null;
 
   console.log(kleur.bold('Compass CLI status'));
-  printRow('base_url', baseUrl ? `${baseUrl} ${kleur.dim('(' + baseUrlSource + ')')}` : kleur.dim('(unset)'));
+  printRow(
+    'base_url',
+    baseUrl ? `${baseUrl} ${kleur.dim(`(${baseUrlSource})`)}` : kleur.dim('(unset)'),
+  );
   printRow('login', loggedIn ? kleur.green('yes') : kleur.yellow('no'));
   printRow('outbox', queueLen === 0 ? kleur.green('empty') : kleur.yellow(`${queueLen} queued`));
   printRow('last_contact', lastContact ?? kleur.dim('never'));
@@ -25,9 +28,7 @@ export async function runStatus(): Promise<number> {
 
   if (!baseUrl) {
     console.log('');
-    console.log(
-      kleur.dim('Hint: set COMPASS_BASE_URL or run `compass login --base-url <url>`.'),
-    );
+    console.log(kleur.dim('Hint: set COMPASS_BASE_URL or run `compass login --base-url <url>`.'));
   } else if (!loggedIn) {
     console.log('');
     console.log(kleur.dim('Hint: run `compass login` to authenticate.'));
@@ -36,7 +37,7 @@ export async function runStatus(): Promise<number> {
 }
 
 async function fetchDialect(baseUrl: string): Promise<string | null> {
-  const url = baseUrl.replace(/\/$/, '') + '/api/v1/health';
+  const url = `${baseUrl.replace(/\/$/, '')}/api/v1/health`;
   try {
     const res = await fetch(url, {
       method: 'GET',
@@ -51,5 +52,5 @@ async function fetchDialect(baseUrl: string): Promise<string | null> {
 }
 
 function printRow(label: string, value: string): void {
-  console.log('  ' + kleur.dim(label.padEnd(14)) + value);
+  console.log(`  ${kleur.dim(label.padEnd(14))}${value}`);
 }

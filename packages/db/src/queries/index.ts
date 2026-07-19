@@ -14,3 +14,4 @@ export * as webhook from './webhook.js';
 export * as stall from './stall.js';
 export * as admin from './admin.js';
 export * as checklist from './checklist.js';
+export * as milestones from './milestones.js';

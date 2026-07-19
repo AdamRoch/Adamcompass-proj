@@ -1,8 +1,8 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import * as checklistQ from '@compass/db/queries/checklist';
 import { requireUserOrRedirect } from '@/lib/auth';
+import * as checklistQ from '@compass/db/queries/checklist';
+import { revalidatePath } from 'next/cache';
 
 export type ChecklistItemRow = checklistQ.ChecklistItemRow;
 

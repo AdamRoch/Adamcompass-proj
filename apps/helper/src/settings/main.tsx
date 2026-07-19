@@ -1,7 +1,6 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Settings } from './Settings.js';
 import { SETTINGS_CSS } from '../lib/styles.js';
+import { Settings } from './Settings.js';
 
 const styleTag = document.createElement('style');
 styleTag.textContent = SETTINGS_CSS;

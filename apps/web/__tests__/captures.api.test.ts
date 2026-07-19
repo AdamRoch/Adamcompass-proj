@@ -5,8 +5,8 @@
 // authQ.findActiveTokenByHash, so a real auth_token row is created up-front via the helper.
 
 import { beforeEach, describe, expect, it } from 'vitest';
-import { setupTestDb } from '../../../tests/helpers/db.js';
 import { createBearer } from '../../../tests/helpers/auth.js';
+import { setupTestDb } from '../../../tests/helpers/db.js';
 import { POST } from '../app/api/v1/captures/route.js';
 
 function makeReq(body: Record<string, unknown>, headers: Record<string, string> = {}) {

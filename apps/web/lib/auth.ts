@@ -3,12 +3,12 @@
 // Bearer: Authorization header validated against auth_token table (sha256 hash compared).
 
 import 'server-only';
-import bcrypt from 'bcryptjs';
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import * as authQ from '@compass/db/queries/auth';
+import type { TokenScope } from '@compass/shared';
+import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import * as authQ from '@compass/db/queries/auth';
-import { nowIso, type TokenScope } from '@compass/shared';
 
 const COOKIE_NAME = 'compass_session';
 const SESSION_TTL_DAYS = 30;
@@ -127,7 +127,8 @@ export async function authenticateBearer(
   if (!authorization) return null;
   const m = authorization.match(/^Bearer\s+(.+)$/i);
   if (!m) return null;
-  const plain = m[1]!.trim();
+  const plain = m[1]?.trim();
+  if (!plain) return null;
   const hashed = hashToken(plain);
   const row = await authQ.findActiveTokenByHash(hashed, requiredScope);
   if (!row) return null;

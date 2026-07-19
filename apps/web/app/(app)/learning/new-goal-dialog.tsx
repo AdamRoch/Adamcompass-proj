@@ -1,8 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,6 +14,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/toast';
+import { Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 export function NewGoalDialog() {
   const router = useRouter();

@@ -1,11 +1,11 @@
-import { and, desc, eq, gte, isNotNull, isNull, lt, or } from 'drizzle-orm';
 import {
+  type Settings,
   calendarDaysBetween,
   daysAgoIso,
   nowIso,
   startOfDayInTz,
-  type Settings,
 } from '@compass/shared';
+import { and, desc, eq, gte, isNotNull, isNull, lt, ne, or, sql } from 'drizzle-orm';
 import { getDb } from '../index.js';
 import { getSettings } from './settings.js';
 
@@ -26,6 +26,10 @@ export interface StalledItem extends MomentumItem {
 export async function momentumStrip(days = 7, limit = 20): Promise<MomentumItem[]> {
   const handle = getDb();
   const since = daysAgoIso(days);
+  // Each branch is capped at `limit` in SQL (index-backed ORDER BY on last_touched_at),
+  // so the JS merge below only ever sees 2×limit rows.
+  // Archiving bumps last_touched_at (it's an activity), so archived items must be
+  // excluded explicitly — "archived items leave dashboards" (PRD F3).
   const projects = await handle.db
     .select({
       id: handle.schema.project.id,
@@ -35,7 +39,14 @@ export async function momentumStrip(days = 7, limit = 20): Promise<MomentumItem[
       snoozed_until: handle.schema.project.snoozed_until,
     })
     .from(handle.schema.project)
-    .where(gte(handle.schema.project.last_touched_at, since));
+    .where(
+      and(
+        gte(handle.schema.project.last_touched_at, since),
+        ne(handle.schema.project.stage, 'archived'),
+      ),
+    )
+    .orderBy(desc(handle.schema.project.last_touched_at))
+    .limit(limit);
   const goals = await handle.db
     .select({
       id: handle.schema.learning_goal.id,
@@ -45,7 +56,14 @@ export async function momentumStrip(days = 7, limit = 20): Promise<MomentumItem[
       snoozed_until: handle.schema.learning_goal.snoozed_until,
     })
     .from(handle.schema.learning_goal)
-    .where(gte(handle.schema.learning_goal.last_touched_at, since));
+    .where(
+      and(
+        gte(handle.schema.learning_goal.last_touched_at, since),
+        ne(handle.schema.learning_goal.status, 'archived'),
+      ),
+    )
+    .orderBy(desc(handle.schema.learning_goal.last_touched_at))
+    .limit(limit);
 
   const items: MomentumItem[] = [
     ...projects.map((p) => ({
@@ -200,32 +218,30 @@ export interface DashboardCounts {
 
 export async function counts(): Promise<DashboardCounts> {
   const handle = getDb();
-  const projects = await handle.db.select().from(handle.schema.project);
-  const goals = await handle.db.select().from(handle.schema.learning_goal);
-  const resources = await handle.db.select().from(handle.schema.resource);
+  const pRows = await handle.db
+    .select({ key: handle.schema.project.stage, c: sql<number>`count(*)` })
+    .from(handle.schema.project)
+    .groupBy(handle.schema.project.stage);
+  const gRows = await handle.db
+    .select({ key: handle.schema.learning_goal.status, c: sql<number>`count(*)` })
+    .from(handle.schema.learning_goal)
+    .groupBy(handle.schema.learning_goal.status);
+  const rRows = await handle.db
+    .select({ key: handle.schema.resource.reading_status, c: sql<number>`count(*)` })
+    .from(handle.schema.resource)
+    .groupBy(handle.schema.resource.reading_status);
   const inbox = await handle.db
-    .select()
+    .select({ c: sql<number>`count(*)` })
     .from(handle.schema.note)
     .where(isNull(handle.schema.note.entity_id));
 
-  const projects_by_stage: Record<string, number> = {};
-  for (const p of projects) {
-    projects_by_stage[p.stage] = (projects_by_stage[p.stage] ?? 0) + 1;
-  }
-  const learning_by_status: Record<string, number> = {};
-  for (const g of goals) {
-    learning_by_status[g.status] = (learning_by_status[g.status] ?? 0) + 1;
-  }
-  const reading_by_status: Record<string, number> = {};
-  for (const r of resources) {
-    reading_by_status[r.reading_status] = (reading_by_status[r.reading_status] ?? 0) + 1;
-  }
+  const toRecord = (rows: Array<{ key: string; c: number }>) =>
+    Object.fromEntries(rows.map((r) => [r.key, Number(r.c)]));
 
   return {
-    projects_by_stage,
-    learning_by_status,
-    reading_by_status,
-    inbox_count: inbox.length,
+    projects_by_stage: toRecord(pRows),
+    learning_by_status: toRecord(gRows),
+    reading_by_status: toRecord(rRows),
+    inbox_count: Number(inbox[0]?.c ?? 0),
   };
 }
-

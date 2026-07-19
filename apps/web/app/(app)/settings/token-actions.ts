@@ -1,10 +1,10 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-import * as authQ from '@compass/db/queries/auth';
-import * as adminQ from '@compass/db/queries/admin';
-import type { TokenScope } from '@compass/shared';
 import { hashToken, newRandomToken, requireUserOrRedirect } from '@/lib/auth';
+import * as adminQ from '@compass/db/queries/admin';
+import * as authQ from '@compass/db/queries/auth';
+import type { TokenScope } from '@compass/shared';
+import { revalidatePath } from 'next/cache';
 
 export interface TokenRow {
   id: string;

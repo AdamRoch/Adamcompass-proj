@@ -12,7 +12,7 @@ export async function runLogout(): Promise<number> {
 
   // Best-effort revoke. The endpoint is not in the typed SDK yet, so we POST directly
   // and tolerate any failure — local state is the source of truth for "am I logged in?".
-  const revokeUrl = creds.base_url.replace(/\/$/, '') + '/api/v1/auth/revoke';
+  const revokeUrl = `${creds.base_url.replace(/\/$/, '')}/api/v1/auth/revoke`;
   try {
     await fetch(revokeUrl, {
       method: 'POST',

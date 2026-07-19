@@ -2,8 +2,8 @@
 // database connection so we get a single writer and avoid native-module
 // trouble in the WebView. The replay loop also lives in Rust.
 
-import { invoke } from '@tauri-apps/api/core';
 import type { CaptureRequest } from '@compass/shared/zod';
+import { invoke } from '@tauri-apps/api/core';
 
 export interface OutboxStats {
   pending: number;

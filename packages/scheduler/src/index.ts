@@ -1,7 +1,7 @@
-import cron from 'node-cron';
 import { settings as settingsQ } from '@compass/db/queries';
 import { drainPending, notify } from '@compass/notifications';
 import { isInQuietHours } from '@compass/shared';
+import cron from 'node-cron';
 import { renderDigest } from './digest.js';
 import { sweepStalls } from './stall.js';
 
@@ -36,22 +36,16 @@ async function registerJobs(opts?: SchedulerOptions) {
   // Daily digest at user-configured time
   const [dh, dm] = settings.digest_send_time.split(':').map(Number);
   const digestCron = `${dm ?? 0} ${dh ?? 9} * * *`;
-  tasks.push(
-    cron.schedule(digestCron, runDailyDigestJob, { timezone: tz, scheduled: true }),
-  );
+  tasks.push(cron.schedule(digestCron, runDailyDigestJob, { timezone: tz, scheduled: true }));
 
   // Stall sweeper: every 15 minutes
-  tasks.push(
-    cron.schedule('*/15 * * * *', runStallSweepJob, { timezone: tz, scheduled: true }),
-  );
+  tasks.push(cron.schedule('*/15 * * * *', runStallSweepJob, { timezone: tz, scheduled: true }));
 
   // Quiet-hours drain: fire at user-configured quiet_hours_end (in user TZ). When this tick
   // runs, isInQuietHours() will be false, so drainPending() will flush queued sends.
   const [qh, qm] = settings.quiet_hours_end.split(':').map(Number);
   const drainCron = `${qm ?? 0} ${qh ?? 7} * * *`;
-  tasks.push(
-    cron.schedule(drainCron, runDrainPendingJob, { timezone: tz, scheduled: true }),
-  );
+  tasks.push(cron.schedule(drainCron, runDrainPendingJob, { timezone: tz, scheduled: true }));
 
   console.log(
     `[scheduler] started in tz=${tz}; digest=${digestCron}; stall=*/15; drain=${drainCron}`,

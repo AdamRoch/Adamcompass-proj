@@ -1,10 +1,10 @@
 // API response + validation helpers used by every /api/v1 route.
 import 'server-only';
-import { NextResponse, type NextRequest } from 'next/server';
-import { z, ZodError, type ZodTypeAny } from 'zod';
 import { ApiError, type ErrorCode } from '@compass/shared';
-import { authenticateBearer, currentUser } from './auth.js';
 import type { TokenScope } from '@compass/shared';
+import { type NextRequest, NextResponse } from 'next/server';
+import { ZodError, type ZodTypeAny, type z } from 'zod';
+import { authenticateBearer, currentUser } from './auth.js';
 
 export function ok<T>(data: T, init?: ResponseInit): NextResponse {
   return NextResponse.json(data, init);
@@ -45,7 +45,12 @@ export async function readJson<S extends ZodTypeAny>(
 export async function requireAuth(
   req: NextRequest,
   requiredTokenScope?: TokenScope,
-): Promise<{ principal: 'user' | 'token'; user_id?: string; token_id?: string; scope?: TokenScope }> {
+): Promise<{
+  principal: 'user' | 'token';
+  user_id?: string;
+  token_id?: string;
+  scope?: TokenScope;
+}> {
   const auth = req.headers.get('authorization');
   // Only treat the header as an attempted bearer auth when it actually starts with "Bearer ".
   // If it's something else (e.g. "Basic …" leaked from a proxy), fall through to the session

@@ -1,19 +1,19 @@
-import * as React from 'react';
-import Link from 'next/link';
-import { Folder } from 'lucide-react';
-import * as projectsQ from '@compass/db/queries/projects';
-import * as tagsQ from '@compass/db/queries/tags';
-import * as settingsQ from '@compass/db/queries/settings';
-import { humanRelative, type ProjectStage } from '@compass/shared';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ListItem } from '@/components/ui/list-item';
+import { SnoozeBadge } from '@/components/ui/snooze-badge';
 import { StagePill } from '@/components/ui/stage-pill';
 import { StallBadge } from '@/components/ui/stall-badge';
-import { SnoozeBadge } from '@/components/ui/snooze-badge';
-import { TagChip } from '@/components/ui/tag-chip';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TagChip } from '@/components/ui/tag-chip';
+import * as projectsQ from '@compass/db/queries/projects';
+import * as settingsQ from '@compass/db/queries/settings';
+import * as tagsQ from '@compass/db/queries/tags';
+import { type ProjectStage, humanRelative } from '@compass/shared';
+import { Folder, Kanban, List as ListIcon } from 'lucide-react';
+import Link from 'next/link';
 import { NewProjectDialog } from './new-project-dialog';
+import { type BoardCard, ProjectBoard } from './project-board';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,10 +32,30 @@ function daysBetween(a: string, b: string): number {
   return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
 
+/** Preserve current filters while overriding some params; undefined removes a param. */
+function buildQuery(
+  params: SearchParams,
+  overrides: Partial<Record<'stage' | 'snoozed' | 'tag' | 'view', string | undefined>>,
+): Record<string, string> {
+  const merged: Record<string, string | undefined> = {
+    stage: params.stage,
+    snoozed: params.snoozed,
+    tag: params.tag,
+    view: params.view,
+    ...overrides,
+  };
+  // Board view spans all stages — a stage filter doesn't apply there.
+  if (merged.view === 'board') merged.stage = undefined;
+  return Object.fromEntries(
+    Object.entries(merged).filter((e): e is [string, string] => e[1] !== undefined),
+  );
+}
+
 interface SearchParams {
   stage?: string;
   snoozed?: string;
   tag?: string;
+  view?: string;
 }
 
 export default async function ProjectsPage({
@@ -47,6 +67,7 @@ export default async function ProjectsPage({
   const stageParam = (params.stage ?? 'all').toLowerCase();
   const snoozedParam = (params.snoozed ?? 'show').toLowerCase();
   const tagParam = params.tag ?? null;
+  const view = params.view === 'board' ? 'board' : 'list';
 
   const includeArchived = stageParam === 'archived' || stageParam === 'all';
   const stageFilter =
@@ -109,49 +130,68 @@ export default async function ProjectsPage({
             Projects
           </h1>
           <p className="mt-1 text-sm text-text-muted">
-            <span className="font-semibold tabular-nums text-text-primary">
-              {filtered.length}
-            </span>{' '}
+            <span className="font-semibold tabular-nums text-text-primary">{filtered.length}</span>{' '}
             of {projectsWithTags.length} shown
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <nav
+            className="flex items-center rounded-md border border-border/60 p-0.5"
+            aria-label="View"
+          >
+            <Link
+              href={{ pathname: '/projects', query: buildQuery(params, { view: undefined }) }}
+              className={
+                view === 'list'
+                  ? 'inline-flex items-center gap-1 rounded-sm bg-accent-soft px-2 py-1 text-xs font-medium text-accent'
+                  : 'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-xs text-text-muted hover:text-text-primary'
+              }
+            >
+              <ListIcon className="size-3.5" aria-hidden /> List
+            </Link>
+            <Link
+              href={{ pathname: '/projects', query: buildQuery(params, { view: 'board' }) }}
+              className={
+                view === 'board'
+                  ? 'inline-flex items-center gap-1 rounded-sm bg-accent-soft px-2 py-1 text-xs font-medium text-accent'
+                  : 'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-xs text-text-muted hover:text-text-primary'
+              }
+            >
+              <Kanban className="size-3.5" aria-hidden /> Board
+            </Link>
+          </nav>
           <NewProjectDialog />
         </div>
       </header>
 
-      {/* Stage filter tabs */}
-      <Tabs value={stageParam}>
-        <TabsList className="flex flex-wrap">
-          {STAGE_TABS.map((s) => (
-            <TabsTrigger key={s.value} value={s.value} asChild>
-              <Link
-                href={{
-                  pathname: '/projects',
-                  query: {
-                    ...(s.value !== 'all' ? { stage: s.value } : {}),
-                    ...(snoozedParam !== 'show' ? { snoozed: snoozedParam } : {}),
-                    ...(tagParam ? { tag: tagParam } : {}),
-                  },
-                }}
-              >
-                {s.label}
-              </Link>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      {/* Stage filter tabs (list view only — the board shows every stage as a column) */}
+      {view === 'list' ? (
+        <Tabs value={stageParam}>
+          <TabsList className="flex flex-wrap">
+            {STAGE_TABS.map((s) => (
+              <TabsTrigger key={s.value} value={s.value} asChild>
+                <Link
+                  href={{
+                    pathname: '/projects',
+                    query: {
+                      ...(s.value !== 'all' ? { stage: s.value } : {}),
+                      ...(snoozedParam !== 'show' ? { snoozed: snoozedParam } : {}),
+                      ...(tagParam ? { tag: tagParam } : {}),
+                    },
+                  }}
+                >
+                  {s.label}
+                </Link>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <span className="text-text-muted">Snoozed:</span>
         <Link
-          href={{
-            pathname: '/projects',
-            query: {
-              ...(stageParam !== 'all' ? { stage: stageParam } : {}),
-              ...(tagParam ? { tag: tagParam } : {}),
-            },
-          }}
+          href={{ pathname: '/projects', query: buildQuery(params, { snoozed: undefined }) }}
           className={
             snoozedParam === 'show'
               ? 'rounded-sm bg-accent-soft px-2 py-0.5 text-accent'
@@ -161,14 +201,7 @@ export default async function ProjectsPage({
           Show
         </Link>
         <Link
-          href={{
-            pathname: '/projects',
-            query: {
-              ...(stageParam !== 'all' ? { stage: stageParam } : {}),
-              ...(tagParam ? { tag: tagParam } : {}),
-              snoozed: 'hidden',
-            },
-          }}
+          href={{ pathname: '/projects', query: buildQuery(params, { snoozed: 'hidden' }) }}
           className={
             snoozedParam === 'hidden'
               ? 'rounded-sm bg-accent-soft px-2 py-0.5 text-accent'
@@ -182,13 +215,7 @@ export default async function ProjectsPage({
             <span className="ml-3 text-text-muted">Tag:</span>
             {tagParam ? (
               <Link
-                href={{
-                  pathname: '/projects',
-                  query: {
-                    ...(stageParam !== 'all' ? { stage: stageParam } : {}),
-                    ...(snoozedParam !== 'show' ? { snoozed: snoozedParam } : {}),
-                  },
-                }}
+                href={{ pathname: '/projects', query: buildQuery(params, { tag: undefined }) }}
                 className="rounded-sm bg-accent-soft px-2 py-0.5 text-accent"
               >
                 #{tagParam} ×
@@ -197,14 +224,7 @@ export default async function ProjectsPage({
               allTags.slice(0, 10).map((t) => (
                 <Link
                   key={t}
-                  href={{
-                    pathname: '/projects',
-                    query: {
-                      ...(stageParam !== 'all' ? { stage: stageParam } : {}),
-                      ...(snoozedParam !== 'show' ? { snoozed: snoozedParam } : {}),
-                      tag: t,
-                    },
-                  }}
+                  href={{ pathname: '/projects', query: buildQuery(params, { tag: t }) }}
                   className="rounded-sm px-2 py-0.5 text-text-muted hover:text-text-primary"
                 >
                   #{t}
@@ -215,7 +235,30 @@ export default async function ProjectsPage({
         ) : null}
       </div>
 
-      {filtered.length === 0 ? (
+      {view === 'board' ? (
+        <ProjectBoard
+          cards={filtered
+            .filter(({ project }) => project.stage !== 'archived')
+            .map(({ project }): BoardCard => {
+              const days = daysBetween(project.last_touched_at, nowIso);
+              const threshold = project.stall_threshold_days ?? defaultStall;
+              const isSnoozed = !!project.snoozed_until && project.snoozed_until > nowIso;
+              const isStalled =
+                !isSnoozed &&
+                days >= threshold &&
+                project.stage !== 'shipped' &&
+                project.stage !== 'archived';
+              return {
+                id: project.id,
+                title: project.title,
+                stage: project.stage,
+                progress_pct: project.progress_pct,
+                stalled_days: isStalled ? days : null,
+                snoozed: isSnoozed,
+              };
+            })}
+        />
+      ) : filtered.length === 0 ? (
         <Card variant="glass" padding="lg">
           <EmptyState
             icon={<Folder />}
@@ -235,7 +278,11 @@ export default async function ProjectsPage({
               const days = daysBetween(project.last_touched_at, nowIso);
               const threshold = project.stall_threshold_days ?? defaultStall;
               const isSnoozed = !!project.snoozed_until && project.snoozed_until > nowIso;
-              const isStalled = !isSnoozed && days >= threshold && project.stage !== 'shipped' && project.stage !== 'archived';
+              const isStalled =
+                !isSnoozed &&
+                days >= threshold &&
+                project.stage !== 'shipped' &&
+                project.stage !== 'archived';
               return (
                 <ListItem
                   key={project.id}

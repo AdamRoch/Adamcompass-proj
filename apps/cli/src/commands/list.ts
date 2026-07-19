@@ -44,9 +44,9 @@ export async function runList(opts: ListOptions): Promise<number> {
 }
 
 function printCaptures(notes: Note[] | null, err?: unknown): void {
-  console.log(kleur.bold(`Recent captures`));
+  console.log(kleur.bold('Recent captures'));
   if (notes === null) {
-    console.log(kleur.dim('  (failed to load: ' + describe(err) + ')'));
+    console.log(kleur.dim(`  (failed to load: ${describe(err)})`));
     return;
   }
   if (notes.length === 0) {
@@ -70,18 +70,16 @@ function printCaptures(notes: Note[] | null, err?: unknown): void {
 }
 
 function printProjects(projects: Project[] | null, err?: unknown): void {
-  console.log(kleur.bold(`Recent projects`));
+  console.log(kleur.bold('Recent projects'));
   if (projects === null) {
-    console.log(kleur.dim('  (failed to load: ' + describe(err) + ')'));
+    console.log(kleur.dim(`  (failed to load: ${describe(err)})`));
     return;
   }
   if (projects.length === 0) {
     console.log(kleur.dim('  no projects yet.'));
     return;
   }
-  const sorted = [...projects].sort((a, b) =>
-    b.last_touched_at.localeCompare(a.last_touched_at),
-  );
+  const sorted = [...projects].sort((a, b) => b.last_touched_at.localeCompare(a.last_touched_at));
   const table = new Table({
     head: ['touched', 'stage', 'title'],
     colWidths: [14, 12, 60],
@@ -95,9 +93,9 @@ function printProjects(projects: Project[] | null, err?: unknown): void {
 }
 
 function printGoals(goals: LearningGoal[] | null, err?: unknown): void {
-  console.log(kleur.bold(`Recent learning goals`));
+  console.log(kleur.bold('Recent learning goals'));
   if (goals === null) {
-    console.log(kleur.dim('  (failed to load: ' + describe(err) + ')'));
+    console.log(kleur.dim(`  (failed to load: ${describe(err)})`));
     return;
   }
   if (goals.length === 0) {
@@ -122,7 +120,7 @@ function stripNewlines(s: string): string {
 }
 
 function truncate(s: string, n: number): string {
-  return s.length <= n ? s : s.slice(0, n - 1) + '…';
+  return s.length <= n ? s : `${s.slice(0, n - 1)}…`;
 }
 
 function clampLimit(raw: number | undefined): number {
@@ -132,8 +130,16 @@ function clampLimit(raw: number | undefined): number {
   return Math.floor(raw);
 }
 
-interface Ok<T> { ok: true; value: T; err?: undefined; }
-interface Err { ok: false; value?: undefined; err: unknown; }
+interface Ok<T> {
+  ok: true;
+  value: T;
+  err?: undefined;
+}
+interface Err {
+  ok: false;
+  value?: undefined;
+  err: unknown;
+}
 type Result<T> = Ok<T> | Err;
 
 async function safe<T>(fn: () => Promise<T>): Promise<Result<T>> {
@@ -154,7 +160,7 @@ function describe(err: unknown): string {
 }
 
 function printFatal(prefix: string, err: unknown): void {
-  console.error(kleur.red('error: ') + `${prefix}: ${describe(err)}`);
+  console.error(`${kleur.red('error: ')}${prefix}: ${describe(err)}`);
   if (err instanceof CompassApiError && (err.status === 401 || err.status === 403)) {
     console.error(kleur.dim('Hint: run `compass login` first.'));
   }

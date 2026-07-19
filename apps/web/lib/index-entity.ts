@@ -2,12 +2,12 @@
 // Lives here (in the app) to avoid a circular dep between @compass/db and @compass/search.
 
 import 'server-only';
-import { getSearch } from '@compass/search';
-import * as projectsQ from '@compass/db/queries/projects';
 import * as learningQ from '@compass/db/queries/learning';
 import * as notesQ from '@compass/db/queries/notes';
+import * as projectsQ from '@compass/db/queries/projects';
 import * as resourcesQ from '@compass/db/queries/resources';
 import * as tagsQ from '@compass/db/queries/tags';
+import { getSearch } from '@compass/search';
 import type { EntityType } from '@compass/shared';
 
 export async function indexProject(id: string) {
@@ -63,4 +63,20 @@ export async function indexResource(id: string) {
 
 export async function removeFromIndex(type: EntityType, id: string) {
   await getSearch().removeEntity({ entity_type: type, entity_id: id });
+}
+
+/** Re-index one entity by type — used after tag rename/merge so FTS tag terms stay fresh. */
+export async function reindexEntity(type: string, id: string) {
+  switch (type) {
+    case 'project':
+      return indexProject(id);
+    case 'learning_goal':
+      return indexLearningGoal(id);
+    case 'note':
+      return indexNote(id);
+    case 'resource':
+      return indexResource(id);
+    default:
+      return; // milestones/checklist/build runs aren't in the search index
+  }
 }

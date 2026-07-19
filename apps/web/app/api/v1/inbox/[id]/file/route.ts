@@ -1,13 +1,13 @@
-import type { NextRequest } from 'next/server';
-import { fileFromInboxSchema } from '@compass/shared/zod';
+import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
+import { indexLearningGoal, indexNote, indexProject } from '@/lib/index-entity';
+import * as adminQ from '@compass/db/queries/admin';
+import * as learningQ from '@compass/db/queries/learning';
 import * as notesQ from '@compass/db/queries/notes';
 import * as projectsQ from '@compass/db/queries/projects';
-import * as learningQ from '@compass/db/queries/learning';
-import * as adminQ from '@compass/db/queries/admin';
-import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
-import { ApiError } from '@compass/shared';
-import { indexLearningGoal, indexNote, indexProject } from '@/lib/index-entity';
 import { touchEntity } from '@compass/db/touch';
+import { ApiError } from '@compass/shared';
+import { fileFromInboxSchema } from '@compass/shared/zod';
+import type { NextRequest } from 'next/server';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

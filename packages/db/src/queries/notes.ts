@@ -1,5 +1,5 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
-import { newUlid, nowIso, type Note } from '@compass/shared';
+import { type Note, newUlid, nowIso } from '@compass/shared';
+import { and, desc, eq, isNotNull, isNull } from 'drizzle-orm';
 import { getDb } from '../index.js';
 import { touchEntity } from '../touch.js';
 
@@ -83,6 +83,56 @@ export async function updateNoteBody(noteId: string, body: string, title?: strin
     .where(eq(handle.schema.note.id, noteId));
   await touchEntity({ type: 'note', id: noteId, event: { type: 'updated' } });
   return await getNote(noteId);
+}
+
+export interface NoteListFilters {
+  filed?: 'unfiled' | 'filed';
+  entity_type?: 'project' | 'learning_goal';
+  entity_id?: string;
+  limit?: number;
+}
+
+export async function listAllNotes(filters: NoteListFilters = {}): Promise<Note[]> {
+  const handle = getDb();
+  const t = handle.schema.note;
+  const conds = [];
+  if (filters.filed === 'unfiled') conds.push(isNull(t.entity_id));
+  if (filters.filed === 'filed') conds.push(isNotNull(t.entity_id));
+  if (filters.entity_type) conds.push(eq(t.entity_type, filters.entity_type));
+  if (filters.entity_id) conds.push(eq(t.entity_id, filters.entity_id));
+  const rows = await handle.db
+    .select()
+    .from(t)
+    .where(conds.length ? and(...conds) : undefined)
+    .orderBy(desc(t.last_touched_at))
+    .limit(filters.limit ?? 200);
+  return rows as Note[];
+}
+
+export async function deleteNote(noteId: string): Promise<Note | null> {
+  const handle = getDb();
+  const note = await getNote(noteId);
+  if (!note) return null;
+  await handle.db.delete(handle.schema.note).where(eq(handle.schema.note.id, noteId));
+  // tagging is polymorphic with no FK cascade — orphaned rows would inflate tag counts
+  // and permanently block delete-if-unused.
+  await handle.db
+    .delete(handle.schema.tagging)
+    .where(
+      and(
+        eq(handle.schema.tagging.entity_type, 'note'),
+        eq(handle.schema.tagging.entity_id, noteId),
+      ),
+    );
+  // Record the deletion on the parent (if any) so its feed explains the disappearance.
+  if (note.entity_type && note.entity_id) {
+    await touchEntity({
+      type: note.entity_type,
+      id: note.entity_id,
+      event: { type: 'note_removed', payload: { note_id: noteId, title: note.title ?? null } },
+    });
+  }
+  return note;
 }
 
 export async function createNoteForEntity(input: {

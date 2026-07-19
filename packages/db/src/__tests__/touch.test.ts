@@ -1,10 +1,10 @@
-import Database from 'better-sqlite3';
+import type Database from 'better-sqlite3';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { setupTestDb } from '../../../../tests/helpers/db.js';
-import { touchEntity } from '../touch.js';
-import * as projectsQ from '../queries/projects.js';
-import * as notesQ from '../queries/notes.js';
 import * as capturesQ from '../queries/captures.js';
+import * as notesQ from '../queries/notes.js';
+import * as projectsQ from '../queries/projects.js';
+import { touchEntity } from '../touch.js';
 
 describe('touchEntity', () => {
   beforeEach(() => {
@@ -27,9 +27,7 @@ describe('touchEntity', () => {
 
     const handle = (await import('@compass/db')).getDb();
     const raw = handle.raw as Database.Database;
-    const evt = raw
-      .prepare(`SELECT * FROM activity_event WHERE id = ?`)
-      .get(event_id) as {
+    const evt = raw.prepare('SELECT * FROM activity_event WHERE id = ?').get(event_id) as {
       entity_type: string;
       entity_id: string;
       event_type: string;
@@ -76,7 +74,7 @@ describe('touchEntity', () => {
     const handle = (await import('@compass/db')).getDb();
     const raw = handle.raw as Database.Database;
     const evt = raw
-      .prepare(`SELECT payload_json FROM activity_event WHERE id = ?`)
+      .prepare('SELECT payload_json FROM activity_event WHERE id = ?')
       .get(event_id) as { payload_json: string };
     expect(evt.payload_json).toBe('{}');
     expect(() => JSON.parse(evt.payload_json)).not.toThrow();

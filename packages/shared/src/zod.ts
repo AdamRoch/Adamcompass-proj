@@ -51,6 +51,7 @@ export const createProjectSchema = z.object({
   title: z.string().min(1).max(200),
   summary: z.string().max(500).optional(),
   body_markdown: z.string().max(200_000).optional(),
+  prd_markdown: z.string().max(200_000).optional(),
   prd_url: z.string().url().optional(),
   stage: z.enum(PROJECT_STAGES).optional(),
   status: z.enum(PROJECT_STATUSES).optional(),
@@ -64,11 +65,34 @@ export const createProjectSchema = z.object({
 export const updateProjectSchema = createProjectSchema.partial();
 
 export const snoozeSchema = z.object({
-  until: isoTimestampSchema.refine(
-    (s) => Date.parse(s) > Date.now(),
-    { message: 'snooze "until" must be a future timestamp' },
-  ),
+  until: isoTimestampSchema.refine((s) => Date.parse(s) > Date.now(), {
+    message: 'snooze "until" must be a future timestamp',
+  }),
   reason: z.string().min(1).max(500),
+});
+
+// ------ Archive ------
+
+export const archiveSchema = z.object({
+  reason: z.string().max(500).optional(),
+});
+
+// ------ Notes ------
+
+export const updateNoteSchema = z.object({
+  title: z.string().max(300).nullable().optional(),
+  body_markdown: z.string().min(1).max(200_000).optional(),
+});
+
+// ------ Milestones ------
+
+export const createMilestoneSchema = z.object({
+  title: z.string().min(1).max(500),
+});
+
+export const updateMilestoneSchema = z.object({
+  title: z.string().min(1).max(500).optional(),
+  done: z.boolean().optional(),
 });
 
 // ------ Learning goals ------
@@ -114,15 +138,20 @@ export const settingsPatchSchema = z
   })
   .partial();
 
+// ------ Build runs ------
+
+export const queueRunSchema = z.object({
+  objective: z.string().min(1).max(2000),
+});
+
 // ------ Webhook ------
 
 export const webhookRunEventSchema = z.object({
   run_id: ulidSchema,
-  // NOTE: the field is named `project_slug` in the public webhook contract (PRD §7.2) but in v1
-  // it is treated as the project's ULID — we look it up via `projectsQ.getProject(id)`.
-  // TODO(v2): support human-readable slugs and resolve them to a ULID server-side; until then,
-  // keep the field name to preserve compatibility with existing agent integrations.
-  project_slug: ulidSchema,
+  // Accepts either the project's ULID (uppercase, 26 chars — v1 contract) or its human
+  // slug (lowercase kebab, V2). The two alphabets are disjoint, so the receiver can
+  // dispatch on shape without ambiguity.
+  project_slug: z.union([ulidSchema, z.string().regex(/^[a-z0-9][a-z0-9-]{0,79}$/)]),
   event_seq: z.number().int().min(0),
   event_type: z.enum(RUN_RESULTS),
   occurred_at: isoTimestampSchema,

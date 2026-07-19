@@ -1,5 +1,5 @@
-import { eq } from 'drizzle-orm';
 import { newUlid, nowIso } from '@compass/shared';
+import { eq } from 'drizzle-orm';
 import { getDb } from '../index.js';
 
 export interface ChecklistItemRow {

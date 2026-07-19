@@ -1,5 +1,5 @@
-import { desc } from 'drizzle-orm';
 import { newUlid, nowIso } from '@compass/shared';
+import { desc } from 'drizzle-orm';
 import { getDb } from '../index.js';
 
 export async function writeAudit(input: {

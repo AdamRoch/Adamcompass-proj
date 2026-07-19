@@ -1,12 +1,12 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/toast';
 import { getClientId } from '@/lib/capture-client-id';
+import { Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 export interface AddNoteProps {
   /** `project` or `learning_goal`. Used by the capture endpoint to file directly. */

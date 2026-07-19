@@ -1,13 +1,13 @@
-import type { NextRequest } from 'next/server';
-import * as projectsQ from '@compass/db/queries/projects';
-import * as notesQ from '@compass/db/queries/notes';
-import * as activityQ from '@compass/db/queries/activity';
-import * as buildRunsQ from '@compass/db/queries/build_runs';
-import * as tagsQ from '@compass/db/queries/tags';
-import { updateProjectSchema } from '@compass/shared/zod';
-import { ApiError } from '@compass/shared';
 import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
 import { indexProject } from '@/lib/index-entity';
+import * as activityQ from '@compass/db/queries/activity';
+import * as buildRunsQ from '@compass/db/queries/build_runs';
+import * as notesQ from '@compass/db/queries/notes';
+import * as projectsQ from '@compass/db/queries/projects';
+import * as tagsQ from '@compass/db/queries/tags';
+import { ApiError } from '@compass/shared';
+import { updateProjectSchema } from '@compass/shared/zod';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

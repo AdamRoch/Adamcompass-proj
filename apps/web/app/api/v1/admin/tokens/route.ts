@@ -1,10 +1,10 @@
-import type { NextRequest } from 'next/server';
-import { z } from 'zod';
-import * as authQ from '@compass/db/queries/auth';
-import * as adminQ from '@compass/db/queries/admin';
-import { ApiError } from '@compass/shared';
 import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
 import { hashToken, newRandomToken } from '@/lib/auth';
+import * as adminQ from '@compass/db/queries/admin';
+import * as authQ from '@compass/db/queries/auth';
+import { ApiError } from '@compass/shared';
+import type { NextRequest } from 'next/server';
+import { z } from 'zod';
 
 const createTokenSchema = z.object({
   name: z.string().min(1).max(120),

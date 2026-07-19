@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LogOut } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 
 export interface SignOutButtonProps {
   /** Optional className override for layout tweaks. */

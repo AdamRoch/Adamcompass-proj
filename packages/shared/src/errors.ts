@@ -4,6 +4,7 @@ export type ErrorCode =
   | 'not_found'
   | 'validation_failed'
   | 'duplicate'
+  | 'conflict'
   | 'rate_limited'
   | 'internal';
 

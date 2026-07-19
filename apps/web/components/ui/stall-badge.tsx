@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { Clock } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { Clock } from 'lucide-react';
+import type * as React from 'react';
 
 export interface StallBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   /** Number of days the entity has been stalled. */

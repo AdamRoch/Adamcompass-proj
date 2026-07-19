@@ -1,5 +1,5 @@
+import { type LearningGoal, type LearningStatus, newUlid, nowIso } from '@compass/shared';
 import { and, desc, eq, or } from 'drizzle-orm';
-import { newUlid, nowIso, type LearningGoal, type LearningStatus } from '@compass/shared';
 import { getDb } from '../index.js';
 import { touchEntity } from '../touch.js';
 
@@ -97,6 +97,85 @@ export async function updateLearningGoal(
           ? { from: existing.status, to: patch.status }
           : { fields: Object.keys(update) },
     },
+  });
+  return await getLearningGoal(id);
+}
+
+/**
+ * One-action promotion: a curiosity capture becomes a full learning goal, with the
+ * originating note filed onto it (PRD V2 §3.5 — mirrors Idea → Project).
+ */
+export async function promoteCuriosityNote(noteId: string) {
+  const notesQ = await import('./notes.js');
+  const note = await notesQ.getNote(noteId);
+  if (!note || note.entity_id) return null; // missing or already filed
+  const firstLine = note.body_markdown.split('\n')[0]?.trim() ?? '';
+  const title = (note.title?.trim() || firstLine || 'Untitled curiosity').slice(0, 200);
+  const goal = await createLearningGoal({
+    title,
+    motivation: note.body_markdown.slice(0, 500),
+    status: 'curious',
+  });
+  if (!goal) return null;
+  await notesQ.fileNoteToEntity(noteId, { type: 'learning_goal', id: goal.id });
+  await touchEntity({
+    type: 'learning_goal',
+    id: goal.id,
+    event: { type: 'promoted_from_curiosity', payload: { note_id: noteId } },
+  });
+  return goal;
+}
+
+export async function archiveLearningGoal(id: string, reason?: string) {
+  const handle = getDb();
+  const existing = await getLearningGoal(id);
+  if (!existing) return null;
+  if (existing.status === 'archived') return existing;
+  await handle.db
+    .update(handle.schema.learning_goal)
+    .set({ status: 'archived' })
+    .where(eq(handle.schema.learning_goal.id, id));
+  // `from` in the payload is what restore uses to put the goal back where it was.
+  await touchEntity({
+    type: 'learning_goal',
+    id,
+    event: { type: 'archived', payload: { from: existing.status, reason: reason ?? null } },
+  });
+  return await getLearningGoal(id);
+}
+
+export async function restoreLearningGoal(id: string) {
+  const handle = getDb();
+  const existing = await getLearningGoal(id);
+  if (!existing) return null;
+  if (existing.status !== 'archived') return existing;
+  const events = await handle.db
+    .select()
+    .from(handle.schema.activity_event)
+    .where(
+      and(
+        eq(handle.schema.activity_event.entity_type, 'learning_goal'),
+        eq(handle.schema.activity_event.entity_id, id),
+        eq(handle.schema.activity_event.event_type, 'archived'),
+      ),
+    )
+    .orderBy(desc(handle.schema.activity_event.occurred_at))
+    .limit(1);
+  let from: LearningStatus = 'curious';
+  try {
+    const payload = JSON.parse(events[0]?.payload_json ?? '{}') as { from?: LearningStatus };
+    if (payload.from && payload.from !== 'archived') from = payload.from;
+  } catch {
+    // fall through to 'curious'
+  }
+  await handle.db
+    .update(handle.schema.learning_goal)
+    .set({ status: from })
+    .where(eq(handle.schema.learning_goal.id, id));
+  await touchEntity({
+    type: 'learning_goal',
+    id,
+    event: { type: 'restored', payload: { to: from } },
   });
   return await getLearningGoal(id);
 }

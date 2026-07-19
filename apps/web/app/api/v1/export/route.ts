@@ -1,7 +1,7 @@
-import type { NextRequest } from 'next/server';
+import { fromApiError, requireAuth } from '@/lib/api';
 import { getDb } from '@compass/db';
 import { ApiError } from '@compass/shared';
-import { fromApiError, requireAuth } from '@/lib/api';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {

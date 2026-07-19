@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
-import * as Tooltip from '@radix-ui/react-tooltip';
-import type { Theme } from '@compass/shared';
 import { Toaster } from '@/components/ui/toast';
+import type { Theme } from '@compass/shared';
+import * as Tooltip from '@radix-ui/react-tooltip';
+import * as React from 'react';
 
 interface ProvidersProps {
   /**

@@ -1,48 +1,49 @@
 'use client';
 
-import * as React from 'react';
-import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { Loader2 } from 'lucide-react';
+import * as React from 'react';
 
 /**
  * Tiny inline Slot — clones the only child and merges className/ref/handlers.
  * Kept inline because `@radix-ui/react-slot` is not in this app's package.json
  * (the constraint allows only the specific Radix packages already declared).
  */
-const Slot = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement> & { children?: React.ReactNode }>(
-  function Slot({ children, ...slotProps }, forwardedRef) {
-    if (!React.isValidElement(children)) return null;
-    const child = children as React.ReactElement<Record<string, unknown>>;
-    const childProps = child.props;
+const Slot = React.forwardRef<
+  HTMLElement,
+  React.HTMLAttributes<HTMLElement> & { children?: React.ReactNode }
+>(function Slot({ children, ...slotProps }, forwardedRef) {
+  if (!React.isValidElement(children)) return null;
+  const child = children as React.ReactElement<Record<string, unknown>>;
+  const childProps = child.props;
 
-    // Merge className, refs, and event handlers.
-    const mergedClassName = [slotProps.className, childProps.className as string | undefined]
-      .filter(Boolean)
-      .join(' ');
+  // Merge className, refs, and event handlers.
+  const mergedClassName = [slotProps.className, childProps.className as string | undefined]
+    .filter(Boolean)
+    .join(' ');
 
-    const mergedProps: Record<string, unknown> = { ...slotProps, ...childProps };
-    if (mergedClassName) mergedProps.className = mergedClassName;
+  const mergedProps: Record<string, unknown> = { ...slotProps, ...childProps };
+  if (mergedClassName) mergedProps.className = mergedClassName;
 
-    // Merge event handlers (slot handlers run, then child handlers).
-    for (const key of Object.keys(slotProps)) {
-      if (/^on[A-Z]/.test(key) && typeof childProps[key] === 'function') {
-        const slotHandler = (slotProps as Record<string, unknown>)[key] as
-          | ((...args: unknown[]) => unknown)
-          | undefined;
-        const childHandler = childProps[key] as (...args: unknown[]) => unknown;
-        mergedProps[key] = (...args: unknown[]) => {
-          slotHandler?.(...args);
-          return childHandler(...args);
-        };
-      }
+  // Merge event handlers (slot handlers run, then child handlers).
+  for (const key of Object.keys(slotProps)) {
+    if (/^on[A-Z]/.test(key) && typeof childProps[key] === 'function') {
+      const slotHandler = (slotProps as Record<string, unknown>)[key] as
+        | ((...args: unknown[]) => unknown)
+        | undefined;
+      const childHandler = childProps[key] as (...args: unknown[]) => unknown;
+      mergedProps[key] = (...args: unknown[]) => {
+        slotHandler?.(...args);
+        return childHandler(...args);
+      };
     }
+  }
 
-    // Forward ref to the cloned child.
-    (mergedProps as { ref?: React.Ref<unknown> }).ref = forwardedRef as React.Ref<unknown>;
+  // Forward ref to the cloned child.
+  (mergedProps as { ref?: React.Ref<unknown> }).ref = forwardedRef as React.Ref<unknown>;
 
-    return React.cloneElement(child, mergedProps);
-  },
-);
+  return React.cloneElement(child, mergedProps);
+});
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'link';
 export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
@@ -121,7 +122,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
   return (
     <Comp
       ref={ref}
-      type={asChild ? undefined : type ?? 'button'}
+      type={asChild ? undefined : (type ?? 'button')}
       disabled={isDisabled}
       data-loading={loading || undefined}
       className={cn(

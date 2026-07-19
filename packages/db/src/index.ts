@@ -1,8 +1,8 @@
-import Database from 'better-sqlite3';
-import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js';
-import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
-import postgres from 'postgres';
 import type { DbDialect } from '@compass/shared';
+import Database from 'better-sqlite3';
+import { drizzle as drizzleSqlite } from 'drizzle-orm/better-sqlite3';
+import { drizzle as drizzlePg } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 
 import * as pgSchema from './schema/pg.js';
 import * as sqliteSchema from './schema/sqlite.js';
@@ -10,13 +10,16 @@ import * as sqliteSchema from './schema/sqlite.js';
 export type SqliteDb = ReturnType<typeof drizzleSqlite<typeof sqliteSchema>>;
 export type PgDb = ReturnType<typeof drizzlePg<typeof pgSchema>>;
 
-export type Db = SqliteDb | PgDb;
+// Query code is written against the dialect-uniform drizzle core API. We type the
+// handle as the sqlite flavor (canonical) so shared queries typecheck once; at runtime
+// `db`/`schema` may be the pg pair — the two schemas are column-compatible by design.
+export type Db = SqliteDb;
 
 export interface DbHandle {
   dialect: DbDialect;
   db: Db;
   raw: Database.Database | ReturnType<typeof postgres>;
-  schema: typeof sqliteSchema | typeof pgSchema;
+  schema: typeof sqliteSchema;
 }
 
 let cached: DbHandle | null = null;
@@ -54,7 +57,12 @@ export function createDb(opts?: { dialect?: DbDialect; url?: string }): DbHandle
   if (!url) throw new Error('DATABASE_URL required when COMPASS_DB_DIALECT=pg');
   const sql = postgres(url, { max: 5, idle_timeout: 30 });
   const db = drizzlePg(sql, { schema: pgSchema });
-  return { dialect: 'pg', db, raw: sql, schema: pgSchema };
+  return {
+    dialect: 'pg',
+    db: db as unknown as SqliteDb,
+    raw: sql,
+    schema: pgSchema as unknown as typeof sqliteSchema,
+  };
 }
 
 export function resetCachedDb() {

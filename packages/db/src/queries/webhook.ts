@@ -1,5 +1,5 @@
+import { type WebhookDeliveryStatus, newUlid, nowIso } from '@compass/shared';
 import { desc } from 'drizzle-orm';
-import { newUlid, nowIso, type WebhookDeliveryStatus } from '@compass/shared';
 import { getDb } from '../index.js';
 
 export interface WebhookDeliveryRow {
@@ -19,7 +19,7 @@ function capBodyText(body: string): string {
   const len = Buffer.byteLength(body, 'utf8');
   if (len <= MAX_BODY_BYTES) return body;
   const buf = Buffer.from(body, 'utf8').subarray(0, MAX_BODY_BYTES);
-  return buf.toString('utf8') + `\n[truncated: original ${len}B]`;
+  return `${buf.toString('utf8')}\n[truncated: original ${len}B]`;
 }
 
 export async function record(input: {

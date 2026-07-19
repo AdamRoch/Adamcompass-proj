@@ -1,16 +1,16 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
-import { CheckSquare } from 'lucide-react';
 import { toast } from '@/components/ui/toast';
 import { cn } from '@/lib/cn';
-import { addChecklistItem, toggleChecklistItem, type ChecklistItemRow } from './checklist-actions';
+import { Plus } from 'lucide-react';
+import { CheckSquare } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
+import { type ChecklistItemRow, addChecklistItem, toggleChecklistItem } from './checklist-actions';
 
 export interface ChecklistProps {
   goalId: string;

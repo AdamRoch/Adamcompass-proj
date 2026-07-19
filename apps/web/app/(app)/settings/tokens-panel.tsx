@@ -1,8 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Copy, KeyRound, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -22,11 +19,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from '@/components/ui/toast';
+import { Copy, KeyRound, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 import {
-  mintTokenAction,
-  revokeTokenAction,
   type MintResult,
   type TokenRow,
+  mintTokenAction,
+  revokeTokenAction,
 } from './token-actions';
 
 export function TokensPanel({ tokens }: { tokens: TokenRow[] }) {
@@ -86,8 +86,8 @@ export function TokensPanel({ tokens }: { tokens: TokenRow[] }) {
         <div>
           <h3 className="text-sm font-semibold text-text-primary">Tokens</h3>
           <p className="text-xs text-text-muted">
-            Bearer tokens for the CLI, helper, and incoming webhooks. The plain value is shown
-            once at creation.
+            Bearer tokens for the CLI, helper, and incoming webhooks. The plain value is shown once
+            at creation.
           </p>
         </div>
         <Button
@@ -157,7 +157,13 @@ export function TokensPanel({ tokens }: { tokens: TokenRow[] }) {
         </details>
       ) : null}
 
-      <Dialog open={mintOpen} onOpenChange={(o) => { setMintOpen(o); if (!o) setRevealed(null); }}>
+      <Dialog
+        open={mintOpen}
+        onOpenChange={(o) => {
+          setMintOpen(o);
+          if (!o) setRevealed(null);
+        }}
+      >
         <DialogContent>
           {revealed ? (
             <>
@@ -235,12 +241,7 @@ export function TokensPanel({ tokens }: { tokens: TokenRow[] }) {
                 <Button variant="ghost" size="sm" onClick={() => setMintOpen(false)}>
                   Cancel
                 </Button>
-                <Button
-                  size="sm"
-                  onClick={mint}
-                  loading={busy}
-                  disabled={!name.trim()}
-                >
+                <Button size="sm" onClick={mint} loading={busy} disabled={!name.trim()}>
                   Mint
                 </Button>
               </DialogFooter>

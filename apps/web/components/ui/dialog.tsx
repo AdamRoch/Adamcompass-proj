@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
+import { cn } from '@/lib/cn';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import { cn } from '@/lib/cn';
+import * as React from 'react';
 
 export const Dialog = DialogPrimitive.Root;
 export const DialogTrigger = DialogPrimitive.Trigger;
@@ -80,12 +80,7 @@ export function DialogHeader({ className, ...rest }: React.HTMLAttributes<HTMLDi
 }
 
 export function DialogFooter({ className, ...rest }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={cn('mt-5 flex items-center justify-end gap-2', className)}
-      {...rest}
-    />
-  );
+  return <div className={cn('mt-5 flex items-center justify-end gap-2', className)} {...rest} />;
 }
 
 export const DialogTitle = React.forwardRef<

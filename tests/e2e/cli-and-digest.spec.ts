@@ -15,42 +15,23 @@
 //   available from the Playwright process since better-sqlite3 isn't a root dep), we authenticate
 //   the request context with the same session cookie produced by the bootstrap login.
 
-import { test, expect, request as pwRequest } from '@playwright/test';
-
-async function bootstrapAndGetCookie(baseURL: string): Promise<string> {
-  // Use a fresh context so we don't share state with other tests.
-  const browser = await pwRequest.newContext({ baseURL });
-  // POST the login form-action endpoint manually to mint a session cookie.
-  // The login form posts back to the same /login route (server action) and redirects to /. We
-  // simulate this with the page-based flow because the server action requires the Next runtime
-  // header. So this helper is unused in the current test — we rely on `page` instead.
-  await browser.dispose();
-  return '';
-}
+import { expect, test } from '@playwright/test';
+import { signIn } from './login';
 
 test.describe('CLI-style capture + daily digest', () => {
   test('signup, POST capture, then assert digest body has expected sections', async ({
     page,
     request,
   }) => {
-    // Bootstrap via login form (creates the single user on first submit, returns a session cookie).
-    await page.goto('/login');
-    const email = `e2e-cli-${Date.now()}@example.com`;
-    await page.fill('input[name="email"]', email);
-    await page.fill('input[name="password"]', 'correct-horse-battery-staple');
-    await Promise.all([
-      page.waitForURL('**/'),
-      page.click('button[type="submit"]'),
-    ]);
-    const cookies = await page.context().cookies('http://localhost:3000');
-    const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join('; ');
+    // Sign in (bootstraps the shared e2e account on first run) → session cookie.
+    const cookieHeader = await signIn(page);
 
     // 1. Create a project with target_date=today so the digest "This week" surfaces it.
     const projectRes = await request.post('/api/v1/projects', {
       headers: { cookie: cookieHeader, 'content-type': 'application/json' },
       data: {
         title: 'E2E digest project',
-        summary: 'should appear in today\'s digest',
+        summary: "should appear in today's digest",
         target_date: new Date().toISOString().slice(0, 10),
       },
     });

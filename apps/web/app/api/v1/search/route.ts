@@ -1,7 +1,7 @@
-import type { NextRequest } from 'next/server';
-import { getSearch } from '@compass/search';
 import { fromApiError, ok, requireAuth } from '@/lib/api';
+import { getSearch } from '@compass/search';
 import type { EntityType } from '@compass/shared';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {

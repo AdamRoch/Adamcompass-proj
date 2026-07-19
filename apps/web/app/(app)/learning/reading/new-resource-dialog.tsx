@@ -1,8 +1,8 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
 import { Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
 const READING_STATUSES = ['to_read', 'reading', 'read', 'abandoned'] as const;
 const RESOURCE_KINDS = ['article', 'book', 'paper', 'video', 'course', 'other'] as const;
 import { Button } from '@/components/ui/button';
@@ -169,7 +169,10 @@ export function NewResourceDialog({ goals }: { goals: GoalOption[] }) {
           </div>
           <div className="space-y-1.5">
             <Label>Linked goal (optional)</Label>
-            <Select value={goalId || 'none'} onValueChange={(v) => setGoalId(v === 'none' ? '' : v)}>
+            <Select
+              value={goalId || 'none'}
+              onValueChange={(v) => setGoalId(v === 'none' ? '' : v)}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

@@ -2,7 +2,17 @@
 
 A single-user personal dashboard for **projects, learning, and notes** with frictionless capture from web, CLI, mobile (PWA), and a global hotkey.
 
-> [Implementation PRD](docs/Compass-Implementation-PRD.md) · [Product PRD](Compass-PRD.md) · [Design spec](design/01-ui-themes-spec.md) · [Architecture decisions](docs/decisions/)
+> [V2 PRD](docs/Compass-V2-PRD.md) · [Implementation PRD](docs/Compass-Implementation-PRD.md) · [Product PRD](Compass-PRD.md) · [Design spec](design/01-ui-themes-spec.md) · [Architecture decisions](docs/decisions/)
+
+## What's in v2
+
+Everything below in v1, plus: **milestones** with derived progress (and seeding from the in-app
+**PRD editor**), first-class **notes** (edit/delete anywhere + `/notes`), explicit
+**archive/restore**, **tag management** (rename/merge/delete), a **kanban board** over project
+stages, the **curiosity → learning goal** promotion flow, **build-run queueing** with a dashboard
+**overnight summary** (webhook accepts human project slugs; `scripts/simulate-run.ts` stands in
+for the agent), a global **/activity** feed with cursor pagination, real **PWA icons**, and a
+motion pass across the UI. Status + verification: [`BUILD_STATUS.md`](BUILD_STATUS.md).
 
 ## What's in v1
 

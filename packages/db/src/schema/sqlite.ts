@@ -41,6 +41,7 @@ export const device_code = sqliteTable('device_code', {
   approved: integer('approved', { mode: 'boolean' }).notNull().default(false),
   denied: integer('denied', { mode: 'boolean' }).notNull().default(false),
   token_id: text('token_id'),
+  pending_plain_token: text('pending_plain_token'),
   scope: text('scope', { enum: ['cli', 'helper'] }).notNull(),
   created_at: text('created_at').notNull(),
   expires_at: text('expires_at').notNull(),
@@ -51,9 +52,11 @@ export const project = sqliteTable(
   {
     id: text('id').primaryKey(),
     title: text('title').notNull(),
+    slug: text('slug'),
     summary: text('summary'),
     body_markdown: text('body_markdown'),
     prd_url: text('prd_url'),
+    prd_markdown: text('prd_markdown'),
     stage: text('stage', {
       enum: ['idea', 'prd', 'building', 'review', 'shipped', 'archived'],
     })
@@ -76,6 +79,7 @@ export const project = sqliteTable(
   (t) => ({
     stageIdx: index('project_stage_idx').on(t.stage),
     touchedIdx: index('project_touched_idx').on(t.last_touched_at),
+    slugIdx: uniqueIndex('project_slug_idx').on(t.slug).where(sql`slug IS NOT NULL`),
   }),
 );
 
@@ -324,13 +328,7 @@ export const webhook_deliveries = sqliteTable(
     headers_json: text('headers_json').notNull(),
     body_text: text('body_text').notNull(),
     status: text('status', {
-      enum: [
-        'accepted',
-        'rejected_auth',
-        'rejected_signature',
-        'duplicate',
-        'internal_error',
-      ],
+      enum: ['accepted', 'rejected_auth', 'rejected_signature', 'duplicate', 'internal_error'],
     }).notNull(),
     dedup_key: text('dedup_key'),
     error_message: text('error_message'),

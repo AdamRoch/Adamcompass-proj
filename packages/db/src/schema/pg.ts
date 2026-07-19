@@ -41,6 +41,7 @@ export const device_code = pgTable('device_code', {
   approved: boolean('approved').notNull().default(false),
   denied: boolean('denied').notNull().default(false),
   token_id: text('token_id'),
+  pending_plain_token: text('pending_plain_token'),
   scope: text('scope').notNull(),
   created_at: text('created_at').notNull(),
   expires_at: text('expires_at').notNull(),
@@ -51,9 +52,11 @@ export const project = pgTable(
   {
     id: text('id').primaryKey(),
     title: text('title').notNull(),
+    slug: text('slug'),
     summary: text('summary'),
     body_markdown: text('body_markdown'),
     prd_url: text('prd_url'),
+    prd_markdown: text('prd_markdown'),
     stage: text('stage').notNull().default('idea'),
     status: text('status').notNull().default('active'),
     progress_pct: integer('progress_pct'),
@@ -70,6 +73,7 @@ export const project = pgTable(
   (t) => ({
     stageIdx: index('project_stage_idx').on(t.stage),
     touchedIdx: index('project_touched_idx').on(t.last_touched_at),
+    slugIdx: uniqueIndex('project_slug_idx').on(t.slug).where(sql`slug IS NOT NULL`),
   }),
 );
 

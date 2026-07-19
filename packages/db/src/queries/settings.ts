@@ -1,5 +1,5 @@
+import { DEFAULT_SETTINGS, type Settings, newUlid, nowIso } from '@compass/shared';
 import { eq } from 'drizzle-orm';
-import { DEFAULT_SETTINGS, newUlid, nowIso, type Settings } from '@compass/shared';
 import { getDb } from '../index.js';
 
 export async function getSettings(): Promise<Settings> {

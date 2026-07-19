@@ -7,12 +7,12 @@
 import { CompassClient } from '@compass/api-client';
 import { Command } from 'commander';
 import kleur from 'kleur';
-import { ConfigError, resolveConfig } from './config.js';
-import { readAllStdin, runCapture, type CaptureOptions } from './commands/capture.js';
+import { type CaptureOptions, readAllStdin, runCapture } from './commands/capture.js';
 import { runList } from './commands/list.js';
 import { runLogin } from './commands/login.js';
 import { runLogout } from './commands/logout.js';
 import { runStatus } from './commands/status.js';
+import { ConfigError, resolveConfig } from './config.js';
 import { replayOutbox } from './outbox.js';
 
 const program = new Command();
@@ -67,19 +67,21 @@ program
   .option('--interval <seconds>', 'poll interval (default 5)', parseIntStrict)
   .option('--max-attempts <n>', 'max poll attempts (default 60)', parseIntStrict)
   .option('--no-browser', 'do not try to open the verification URL automatically')
-  .action(async (opts: {
-    baseUrl?: string;
-    interval?: number;
-    maxAttempts?: number;
-    browser?: boolean;
-  }) => {
-    process.exitCode = await runLogin({
-      baseUrl: opts.baseUrl,
-      interval: opts.interval,
-      maxAttempts: opts.maxAttempts,
-      noBrowser: opts.browser === false,
-    });
-  });
+  .action(
+    async (opts: {
+      baseUrl?: string;
+      interval?: number;
+      maxAttempts?: number;
+      browser?: boolean;
+    }) => {
+      process.exitCode = await runLogin({
+        baseUrl: opts.baseUrl,
+        interval: opts.interval,
+        maxAttempts: opts.maxAttempts,
+        noBrowser: opts.browser === false,
+      });
+    },
+  );
 
 program
   .command('list')
@@ -129,7 +131,7 @@ async function main(): Promise<void> {
       console.error('');
       console.error(kleur.dim('outbox replay (background):'));
       for (const w of trailingReplayWarnings) {
-        console.error(kleur.dim('  • ' + w));
+        console.error(kleur.dim(`  • ${w}`));
       }
     }
   }

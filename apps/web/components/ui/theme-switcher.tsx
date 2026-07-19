@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
-import { Check, Palette } from 'lucide-react';
-import { THEMES, type Theme } from '@compass/shared';
 import { cn } from '@/lib/cn';
+import { THEMES, type Theme } from '@compass/shared';
+import { Check, Palette } from 'lucide-react';
+import * as React from 'react';
 import { Button } from './button';
 import {
   DropdownMenu,

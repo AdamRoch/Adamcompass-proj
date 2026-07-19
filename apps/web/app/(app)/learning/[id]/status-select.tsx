@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import * as React from 'react';
 type LearningStatus = 'curious' | 'in_progress' | 'completed' | 'parked' | 'archived';
 const LEARNING_STATUSES: readonly LearningStatus[] = [
   'curious',

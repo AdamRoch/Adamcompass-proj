@@ -1,6 +1,6 @@
-import * as React from 'react';
-import type { ProjectStage } from '@compass/shared';
 import { cn } from '@/lib/cn';
+import type { ProjectStage } from '@compass/shared';
+import type * as React from 'react';
 
 /**
  * Per-stage color treatment. All values come from theme tokens to honor data-theme.

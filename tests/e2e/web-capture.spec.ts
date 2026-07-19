@@ -10,24 +10,16 @@
 // - The web app does not yet expose `/inbox` or `/projects/:id` as pages, so the "click through"
 //   parts of the flow are exercised via API calls instead of clicks. We document each substitution.
 
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { signIn } from './login';
 
 test.describe('web capture → file → dashboard', () => {
   test('signup, capture from dashboard, file via API, verify note attached', async ({
     page,
     request,
   }) => {
-    // 1. Visit /login, sign up via the form-bootstrap path. A 2xx response means the redirect to /
-    // landed on the dashboard.
-    await page.goto('/login');
-    const email = `e2e-${Date.now()}@example.com`;
-    const password = 'correct-horse-battery-staple';
-    await page.fill('input[name="email"]', email);
-    await page.fill('input[name="password"]', password);
-    await Promise.all([
-      page.waitForURL('**/'),
-      page.click('button[type="submit"]'),
-    ]);
+    // 1. Sign in (bootstraps the shared e2e account on first run).
+    const cookieHeader = await signIn(page);
     expect(page.url()).toMatch(/\/(?:$|\?)/);
 
     // 2. Type into the global capture input on the dashboard, submit. The TopCaptureBar lives in
@@ -38,12 +30,7 @@ test.describe('web capture → file → dashboard', () => {
     await input.fill(captureText);
     await input.press('Enter');
 
-    // 3. Confirm via API that the note landed in the inbox. Cookie is on the page context and we
-    // can borrow it for the request context if we read it back, but the inbox API also accepts a
-    // bearer — easier: pull cookies and forward.
-    const cookies = await page.context().cookies('http://localhost:3000');
-    const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join('; ');
-
+    // 3. Confirm via API that the note landed in the inbox.
     // Poll briefly — the capture POST is fire-and-forget from the UI.
     let foundNote: { id: string; body_markdown: string } | undefined;
     for (let i = 0; i < 10 && !foundNote; i++) {
@@ -59,7 +46,7 @@ test.describe('web capture → file → dashboard', () => {
 
     // 4. "File" into a new project via API (the inbox UI page doesn't yet exist; the file-from-
     // inbox API is the canonical mutation the UI will call).
-    const fileRes = await request.post(`/api/v1/inbox/${foundNote!.id}/file`, {
+    const fileRes = await request.post(`/api/v1/inbox/${foundNote?.id}/file`, {
       headers: { cookie: cookieHeader, 'content-type': 'application/json' },
       data: { target: 'new_project', title: 'E2E created project' },
     });
@@ -76,9 +63,12 @@ test.describe('web capture → file → dashboard', () => {
       headers: { cookie: cookieHeader },
     });
     expect(projRes.ok()).toBeTruthy();
-    const projJson = (await projRes.json()) as { project: { title: string }; notes: Array<{ id: string }> };
+    const projJson = (await projRes.json()) as {
+      project: { title: string };
+      notes: Array<{ id: string }>;
+    };
     expect(projJson.project.title).toBe('E2E created project');
-    expect(projJson.notes.some((n) => n.id === foundNote!.id)).toBe(true);
+    expect(projJson.notes.some((n) => n.id === foundNote?.id)).toBe(true);
 
     const momentumRes = await request.get('/api/v1/dashboard/momentum', {
       headers: { cookie: cookieHeader },

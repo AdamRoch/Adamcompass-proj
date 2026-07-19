@@ -1,5 +1,5 @@
+import { type TokenScope, newUlid, nowIso } from '@compass/shared';
 import { and, eq, gte, isNull, lt } from 'drizzle-orm';
-import { newUlid, nowIso, type TokenScope } from '@compass/shared';
 import { getDb } from '../index.js';
 
 export async function getUserByEmail(email: string) {
@@ -160,11 +160,19 @@ export async function getDeviceCodeByUserCode(user_code: string) {
   return rows[0] ?? null;
 }
 
-export async function approveDeviceCode(device_code: string, token_id: string) {
+export async function approveDeviceCode(
+  device_code: string,
+  opts: { token_id: string; pending_plain_token: string },
+) {
   const handle = getDb();
   await handle.db
     .update(handle.schema.device_code)
-    .set({ approved: true, token_id })
+    .set({
+      approved: true,
+      token_id: opts.token_id,
+      // One-time pickup slot for the polling client; the row is deleted on first poll.
+      pending_plain_token: opts.pending_plain_token,
+    })
     .where(eq(handle.schema.device_code.device_code, device_code));
 }
 
@@ -177,7 +185,7 @@ export async function denyDeviceCode(device_code: string) {
 }
 
 /** Hard-delete a device_code row. Used immediately after a successful poll so the plain
- *  token stashed in `token_id` does not persist. Also called by the cleanup sweeper. */
+ *  token stashed in `pending_plain_token` does not persist. Also called by the cleanup sweeper. */
 export async function deleteDeviceCode(device_code: string) {
   const handle = getDb();
   await handle.db

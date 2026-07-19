@@ -86,9 +86,7 @@ export class CompassClient {
   listProjects(query?: { stage?: string; status?: string; limit?: number }): Promise<{
     projects: Project[];
   }> {
-    const q = query
-      ? `?${new URLSearchParams(query as Record<string, string>).toString()}`
-      : '';
+    const q = query ? `?${new URLSearchParams(query as Record<string, string>).toString()}` : '';
     return this.req(`/api/v1/projects${q}`);
   }
   getProject(id: string): Promise<{ project: Project }> {
@@ -123,7 +121,7 @@ export class CompassClient {
     return this.req<{ items: unknown[] }>(`/api/v1/dashboard/momentum?days=${days}`);
   }
   needsAttention() {
-    return this.req<{ items: unknown[] }>(`/api/v1/dashboard/needs-attention`);
+    return this.req<{ items: unknown[] }>('/api/v1/dashboard/needs-attention');
   }
   thisWeek(days = 7) {
     return this.req<{ projects: unknown[]; learning_goals: unknown[] }>(
@@ -131,10 +129,10 @@ export class CompassClient {
     );
   }
   counts(): Promise<DashboardCounts> {
-    return this.req(`/api/v1/dashboard/counts`);
+    return this.req('/api/v1/dashboard/counts');
   }
   digest(): Promise<{ markdown: string }> {
-    return this.req(`/api/v1/dashboard/digest/daily`);
+    return this.req('/api/v1/dashboard/digest/daily');
   }
 
   // ---------- settings ----------
@@ -147,7 +145,10 @@ export class CompassClient {
 
   // ---------- search ----------
   search(q: string, opts?: { types?: string[]; limit?: number }) {
-    const params = new URLSearchParams({ q, ...(opts?.limit ? { limit: String(opts.limit) } : {}) });
+    const params = new URLSearchParams({
+      q,
+      ...(opts?.limit ? { limit: String(opts.limit) } : {}),
+    });
     if (opts?.types) params.set('types', opts.types.join(','));
     return this.req<{ hits: unknown[] }>(`/api/v1/search?${params}`);
   }
@@ -160,7 +161,7 @@ export class CompassClient {
       verification_url: string;
       expires_in: number;
       interval: number;
-    }>(`/api/v1/auth/device`, {
+    }>('/api/v1/auth/device', {
       method: 'POST',
       body: JSON.stringify({ scope }),
       auth: false,
@@ -169,14 +170,17 @@ export class CompassClient {
 
   async pollDeviceCode(device_code: string) {
     return this.req<{ status: 'pending' | 'approved' | 'denied'; token?: string }>(
-      `/api/v1/auth/poll`,
+      '/api/v1/auth/poll',
       { method: 'POST', body: JSON.stringify({ device_code }), auth: false },
     );
   }
 }
 
 export class CompassApiError extends Error {
-  constructor(public readonly status: number, public readonly body: unknown) {
+  constructor(
+    public readonly status: number,
+    public readonly body: unknown,
+  ) {
     super(`Compass API ${status}`);
   }
 }

@@ -1,9 +1,8 @@
-import * as React from 'react';
-import Link from 'next/link';
-import { Compass, Folder, Home, Inbox, Settings, Target } from 'lucide-react';
-import * as notesQ from '@compass/db/queries/notes';
 import { SidebarNavLink } from '@/components/sidebar-nav-link';
 import { cn } from '@/lib/cn';
+import * as notesQ from '@compass/db/queries/notes';
+import { Compass, Folder, Home, Inbox, Radio, Settings, StickyNote, Target } from 'lucide-react';
+import Link from 'next/link';
 
 /**
  * App sidebar — fixed-width left rail with brand, nav, and footer settings link.
@@ -45,37 +44,22 @@ export async function AppSidebar() {
 
       {/* Primary nav */}
       <nav className="flex flex-1 flex-col gap-0.5" aria-label="Sections">
-        <SidebarNavLink
-          href="/"
-          exact
-          icon={<Home className="size-4" />}
-          label="Dashboard"
-        />
+        <SidebarNavLink href="/" exact icon={<Home className="size-4" />} label="Dashboard" />
         <SidebarNavLink
           href="/inbox"
           icon={<Inbox className="size-4" />}
           label="Inbox"
           badge={inboxCount}
         />
-        <SidebarNavLink
-          href="/projects"
-          icon={<Folder className="size-4" />}
-          label="Projects"
-        />
-        <SidebarNavLink
-          href="/learning"
-          icon={<Target className="size-4" />}
-          label="Learning"
-        />
+        <SidebarNavLink href="/projects" icon={<Folder className="size-4" />} label="Projects" />
+        <SidebarNavLink href="/learning" icon={<Target className="size-4" />} label="Learning" />
+        <SidebarNavLink href="/notes" icon={<StickyNote className="size-4" />} label="Notes" />
+        <SidebarNavLink href="/activity" icon={<Radio className="size-4" />} label="Activity" />
       </nav>
 
       {/* Footer */}
       <div className="mt-2 border-t pt-2">
-        <SidebarNavLink
-          href="/settings"
-          icon={<Settings className="size-4" />}
-          label="Settings"
-        />
+        <SidebarNavLink href="/settings" icon={<Settings className="size-4" />} label="Settings" />
       </div>
     </aside>
   );

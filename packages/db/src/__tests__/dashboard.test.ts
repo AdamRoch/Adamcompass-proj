@@ -1,10 +1,10 @@
-import Database from 'better-sqlite3';
+import { addDaysIso, nowIso } from '@compass/shared';
+import type Database from 'better-sqlite3';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { setupTestDb } from '../../../../tests/helpers/db.js';
-import { addDaysIso, newUlid, nowIso } from '@compass/shared';
-import * as projectsQ from '../queries/projects.js';
-import * as learningQ from '../queries/learning.js';
 import * as dashboardQ from '../queries/dashboard.js';
+import * as learningQ from '../queries/learning.js';
+import * as projectsQ from '../queries/projects.js';
 
 /**
  * Backdate a project's last_touched_at without going through the touch helper, so we can simulate
@@ -13,13 +13,13 @@ import * as dashboardQ from '../queries/dashboard.js';
 async function backdateProject(id: string, iso: string) {
   const handle = (await import('@compass/db')).getDb();
   const raw = handle.raw as Database.Database;
-  raw.prepare(`UPDATE project SET last_touched_at = ? WHERE id = ?`).run(iso, id);
+  raw.prepare('UPDATE project SET last_touched_at = ? WHERE id = ?').run(iso, id);
 }
 
 async function backdateLearning(id: string, iso: string) {
   const handle = (await import('@compass/db')).getDb();
   const raw = handle.raw as Database.Database;
-  raw.prepare(`UPDATE learning_goal SET last_touched_at = ? WHERE id = ?`).run(iso, id);
+  raw.prepare('UPDATE learning_goal SET last_touched_at = ? WHERE id = ?').run(iso, id);
 }
 
 describe('needsAttention', () => {
@@ -55,7 +55,7 @@ describe('needsAttention', () => {
     const handle = (await import('@compass/db')).getDb();
     const raw = handle.raw as Database.Database;
     raw
-      .prepare(`UPDATE project SET stall_threshold_days = 30, last_touched_at = ? WHERE id = ?`)
+      .prepare('UPDATE project SET stall_threshold_days = 30, last_touched_at = ? WHERE id = ?')
       .run(addDaysIso(nowIso(), -5), lenient.id);
 
     const result = await dashboardQ.needsAttention();

@@ -1,3 +1,7 @@
+import { createHash } from 'node:crypto';
+import { currentUser } from '@/lib/auth';
+import { indexNote } from '@/lib/index-entity';
+import * as capturesQ from '@compass/db/queries/captures';
 /**
  * Web Share Target endpoint.
  *
@@ -13,11 +17,7 @@
  * applies — the user must be signed into the PWA. If unauthenticated, we bounce
  * to /login with a return path that brings them back through the share flow.
  */
-import { NextResponse, type NextRequest } from 'next/server';
-import { createHash } from 'node:crypto';
-import * as capturesQ from '@compass/db/queries/captures';
-import { indexNote } from '@/lib/index-entity';
-import { currentUser } from '@/lib/auth';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

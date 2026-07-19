@@ -1,15 +1,15 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { NextResponse, type NextRequest } from 'next/server';
-import { webhookRunEventSchema } from '@compass/shared/zod';
-import { newUlid, nowIso } from '@compass/shared';
-import * as buildRunsQ from '@compass/db/queries/build_runs';
-import * as webhookQ from '@compass/db/queries/webhook';
-import * as adminQ from '@compass/db/queries/admin';
-import * as projectsQ from '@compass/db/queries/projects';
-import { authenticateBearer } from '@/lib/auth';
 import { rateLimit } from '@/lib/api';
-import { escapeMarkdownV2, escapeMarkdownV2Url, notify } from '@compass/notifications';
+import { authenticateBearer } from '@/lib/auth';
 import { getDb } from '@compass/db';
+import * as adminQ from '@compass/db/queries/admin';
+import * as buildRunsQ from '@compass/db/queries/build_runs';
+import * as projectsQ from '@compass/db/queries/projects';
+import * as webhookQ from '@compass/db/queries/webhook';
+import { escapeMarkdownV2, escapeMarkdownV2Url, notify } from '@compass/notifications';
+import { isUlid, newUlid, nowIso } from '@compass/shared';
+import { webhookRunEventSchema } from '@compass/shared/zod';
+import { type NextRequest, NextResponse } from 'next/server';
 
 function clientIp(req: NextRequest): string {
   return (
@@ -143,8 +143,10 @@ export async function POST(req: NextRequest) {
   }
   const ev = parsed.data;
 
-  // Verify project exists
-  const project = await projectsQ.getProject(ev.project_slug);
+  // Verify project exists — project_slug carries either a ULID (v1) or a human slug (V2).
+  const project = isUlid(ev.project_slug)
+    ? await projectsQ.getProject(ev.project_slug)
+    : await projectsQ.getProjectBySlug(ev.project_slug);
   if (!project) {
     await webhookQ.record({
       endpoint,
@@ -205,7 +207,7 @@ export async function POST(req: NextRequest) {
   // Upsert the build_run from the event
   const { row: run } = await buildRunsQ.upsertFromEvent({
     run_id: ev.run_id,
-    project_id: ev.project_slug,
+    project_id: project.id,
     event_type: ev.event_type,
     occurred_at: ev.occurred_at,
     result: ev.payload.result,
@@ -230,9 +232,7 @@ export async function POST(req: NextRequest) {
       `*${escapeMarkdownV2(verb)}*`,
       escapedBody,
       linksText,
-      ev.payload.duration_ms
-        ? `Duration: ${Math.round(ev.payload.duration_ms / 1000)}s`
-        : '',
+      ev.payload.duration_ms ? `Duration: ${Math.round(ev.payload.duration_ms / 1000)}s` : '',
     ].filter(Boolean);
     await notify({
       kind: 'build_run_event',
@@ -258,8 +258,5 @@ export async function POST(req: NextRequest) {
     dedup_key: dedupKey,
   });
 
-  return NextResponse.json(
-    { accepted: true, activity_event_id, run },
-    { status: 200 },
-  );
+  return NextResponse.json({ accepted: true, activity_event_id, run }, { status: 200 });
 }

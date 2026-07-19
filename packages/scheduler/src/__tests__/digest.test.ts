@@ -1,16 +1,16 @@
+import { addDaysIso, nowIso } from '@compass/shared';
+import type Database from 'better-sqlite3';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { setupTestDb } from '../../../../tests/helpers/db.js';
-import { addDaysIso, nowIso } from '@compass/shared';
-import * as projectsQ from '../../../db/src/queries/projects.js';
-import * as learningQ from '../../../db/src/queries/learning.js';
 import * as capturesQ from '../../../db/src/queries/captures.js';
-import Database from 'better-sqlite3';
+import * as learningQ from '../../../db/src/queries/learning.js';
+import * as projectsQ from '../../../db/src/queries/projects.js';
 import { renderDigest } from '../digest.js';
 
 async function backdateProject(id: string, iso: string) {
   const handle = (await import('@compass/db')).getDb();
   const raw = handle.raw as Database.Database;
-  raw.prepare(`UPDATE project SET last_touched_at = ? WHERE id = ?`).run(iso, id);
+  raw.prepare('UPDATE project SET last_touched_at = ? WHERE id = ?').run(iso, id);
 }
 
 describe('renderDigest', () => {
@@ -63,6 +63,7 @@ describe('renderDigest', () => {
       idem_key: 'idem-d-1',
       client_id: 'cli',
       body: 'inbox',
+      type_hint: 'note',
       tags: [],
     });
     const md = await renderDigest({ tz: 'UTC' });

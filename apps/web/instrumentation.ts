@@ -38,9 +38,7 @@ function validateEnv() {
   const hasBot = !!process.env.TELEGRAM_BOT_TOKEN;
   const hasChat = !!process.env.TELEGRAM_CHAT_ID;
   if (hasBot !== hasChat) {
-    errors.push(
-      'TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must be set together (or both unset)',
-    );
+    errors.push('TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID must be set together (or both unset)');
   }
 
   if (errors.length > 0) {

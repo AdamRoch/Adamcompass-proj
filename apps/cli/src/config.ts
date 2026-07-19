@@ -27,7 +27,12 @@ export function deriveClientId(): string {
 }
 
 function safeSlug(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '') || 'unknown';
+  return (
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'unknown'
+  );
 }
 
 export async function ensureConfigDir(): Promise<void> {

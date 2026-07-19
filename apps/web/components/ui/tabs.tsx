@@ -1,8 +1,8 @@
 'use client';
 
-import * as React from 'react';
-import * as TabsPrimitive from '@radix-ui/react-tabs';
 import { cn } from '@/lib/cn';
+import * as TabsPrimitive from '@radix-ui/react-tabs';
+import * as React from 'react';
 
 export const Tabs = TabsPrimitive.Root;
 
@@ -13,10 +13,7 @@ export const TabsList = React.forwardRef<
   return (
     <TabsPrimitive.List
       ref={ref}
-      className={cn(
-        'inline-flex items-center gap-1 border-b border-border',
-        className,
-      )}
+      className={cn('inline-flex items-center gap-1 border-b border-border', className)}
       {...rest}
     />
   );

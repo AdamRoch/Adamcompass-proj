@@ -4,11 +4,7 @@ import { humanRelative } from '@compass/shared';
 
 const STALL_CAP = 20;
 
-function entityUrl(
-  entity_type: 'project' | 'learning_goal',
-  id: string,
-  baseUrl: string,
-): string {
+function entityUrl(entity_type: 'project' | 'learning_goal', id: string, baseUrl: string): string {
   const segment = entity_type === 'project' ? 'projects' : 'learning';
   return `${baseUrl}/${segment}/${id}`;
 }
@@ -19,10 +15,11 @@ function mdLink(label: string, url: string): string {
 
 export async function renderDigest(opts?: { tz?: string; baseUrl?: string }): Promise<string> {
   const tz = opts?.tz ?? 'America/Chicago';
-  const baseUrl = (opts?.baseUrl ?? process.env.COMPASS_BASE_URL ?? 'http://localhost:3000').replace(
-    /\/$/,
-    '',
-  );
+  const baseUrl = (
+    opts?.baseUrl ??
+    process.env.COMPASS_BASE_URL ??
+    'http://localhost:3000'
+  ).replace(/\/$/, '');
   const [momentum, stalls, week, counts] = await Promise.all([
     dashboardQ.momentumStrip(7, 10),
     dashboardQ.needsAttention(),

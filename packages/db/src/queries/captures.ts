@@ -1,6 +1,6 @@
-import { and, eq } from 'drizzle-orm';
 import { newUlid, nowIso } from '@compass/shared';
 import type { CaptureRequest } from '@compass/shared/zod';
+import { and, eq } from 'drizzle-orm';
 import { getDb } from '../index.js';
 import { touchEntity } from '../touch.js';
 
@@ -13,7 +13,9 @@ export interface CaptureResult {
  * Idempotent capture: dedupes on (client_id, idem_key).
  * Creates a note with entity_id=null (lands in Inbox) and writes an activity event.
  */
-export async function createCapture(req: CaptureRequest): Promise<CaptureResult> {
+export async function createCapture(
+  req: Omit<CaptureRequest, 'type_hint'> & { type_hint?: CaptureRequest['type_hint'] },
+): Promise<CaptureResult> {
   const handle = getDb();
   const now = req.captured_at ?? nowIso();
 

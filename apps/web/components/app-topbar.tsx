@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
 import { CommandPaletteMount } from '@/components/command-palette';
 import { TopCaptureBar } from '@/components/top-capture-bar';
 import { cn } from '@/lib/cn';
+import * as React from 'react';
 
 export interface AppTopbarProps {
   inboxCount?: number;

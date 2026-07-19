@@ -1,13 +1,12 @@
-import * as React from 'react';
-import Link from 'next/link';
-import { ArrowLeft, BookOpen, ExternalLink } from 'lucide-react';
-import * as resourcesQ from '@compass/db/queries/resources';
-import * as learningQ from '@compass/db/queries/learning';
-import { READING_STATUSES, RESOURCE_KINDS, type ReadingStatus, type ResourceKind } from '@compass/shared';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/cn';
+import * as learningQ from '@compass/db/queries/learning';
+import * as resourcesQ from '@compass/db/queries/resources';
+import { RESOURCE_KINDS, type ReadingStatus, type ResourceKind } from '@compass/shared';
+import { ArrowLeft, BookOpen, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
 import { NewResourceDialog } from './new-resource-dialog';
 
 export const dynamic = 'force-dynamic';
@@ -78,9 +77,7 @@ export default async function ReadingPage({
             Reading list
           </h1>
           <p className="mt-1 text-sm text-text-muted">
-            <span className="font-semibold tabular-nums text-text-primary">
-              {resources.length}
-            </span>{' '}
+            <span className="font-semibold tabular-nums text-text-primary">{resources.length}</span>{' '}
             items
           </p>
         </div>

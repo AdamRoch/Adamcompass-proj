@@ -1,6 +1,21 @@
-import * as React from 'react';
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { ArchiveButton } from '@/components/archive-button';
+import { NoteEditor } from '@/components/note-editor';
+import { ActivityEventRow } from '@/components/ui/activity-event-row';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SnoozeBadge } from '@/components/ui/snooze-badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TagChip } from '@/components/ui/tag-chip';
+import { renderMarkdown } from '@/lib/markdown';
+import * as activityQ from '@compass/db/queries/activity';
+import * as buildRunsQ from '@compass/db/queries/build_runs';
+import type { BuildRunRow } from '@compass/db/queries/build_runs';
+import * as milestonesQ from '@compass/db/queries/milestones';
+import * as notesQ from '@compass/db/queries/notes';
+import * as projectsQ from '@compass/db/queries/projects';
+import * as settingsQ from '@compass/db/queries/settings';
+import * as tagsQ from '@compass/db/queries/tags';
+import { type ActivityEvent, type Note, humanRelative } from '@compass/shared';
 import {
   ArrowLeft,
   Calendar,
@@ -11,23 +26,13 @@ import {
   Palette,
   Zap,
 } from 'lucide-react';
-import * as projectsQ from '@compass/db/queries/projects';
-import * as notesQ from '@compass/db/queries/notes';
-import * as buildRunsQ from '@compass/db/queries/build_runs';
-import * as activityQ from '@compass/db/queries/activity';
-import * as tagsQ from '@compass/db/queries/tags';
-import * as settingsQ from '@compass/db/queries/settings';
-import { humanRelative, type ActivityEvent, type Note } from '@compass/shared';
-import type { BuildRunRow } from '@compass/db/queries/build_runs';
-import { ActivityEventRow } from '@/components/ui/activity-event-row';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { EmptyState } from '@/components/ui/empty-state';
-import { StagePill } from '@/components/ui/stage-pill';
-import { SnoozeBadge } from '@/components/ui/snooze-badge';
-import { TagChip } from '@/components/ui/tag-chip';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { renderMarkdown } from '@/lib/markdown';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import type * as React from 'react';
 import { AddNote } from './add-note';
+import { Milestones } from './milestones';
+import { PrdEditor } from './prd-editor';
+import { QueueRunButton } from './queue-run-button';
 import { SnoozePopover } from './snooze-popover';
 import { StageSelect } from './stage-select';
 import { TitleEdit } from './title-edit';
@@ -52,16 +57,22 @@ export default async function ProjectDetailPage({
     .tagsForEntity('project', id)
     .catch(() => []);
   const settingsP = settingsQ.getSettings().catch(() => null);
-  const [notes, buildRuns, activity, tags, settings] = await Promise.all([
+  const milestonesP = milestonesQ.listForProject(id).catch(() => []);
+  const [notes, buildRuns, activity, tags, settings, milestones] = await Promise.all([
     notesP,
     runsP,
     actsP,
     tagsP,
     settingsP,
+    milestonesP,
   ]);
 
   const tz = settings?.timezone ?? 'America/Chicago';
-  const links: Array<{ kind: string; url: string; icon: React.ComponentType<{ className?: string }> }> = [];
+  const links: Array<{
+    kind: string;
+    url: string;
+    icon: React.ComponentType<{ className?: string }>;
+  }> = [];
   if (project.repo_url) links.push({ kind: 'Repo', url: project.repo_url, icon: Code2 });
   if (project.deploy_url) links.push({ kind: 'Deploy', url: project.deploy_url, icon: Globe });
   if (project.design_url) links.push({ kind: 'Design', url: project.design_url, icon: Palette });
@@ -111,7 +122,9 @@ export default async function ProjectDetailPage({
               ))}
             </div>
           ) : null}
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-1.5">
+            <QueueRunButton projectId={id} />
+            <ArchiveButton entity="projects" id={id} archived={project.stage === 'archived'} />
             <SnoozePopover entity="projects" id={id} snoozedUntil={project.snoozed_until} />
           </div>
         </div>
@@ -120,6 +133,7 @@ export default async function ProjectDetailPage({
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="prd">PRD</TabsTrigger>
           <TabsTrigger value="notes">
             Notes
             {notes.length > 0 ? (
@@ -181,7 +195,34 @@ export default async function ProjectDetailPage({
                 </ul>
               )}
             </Card>
+
+            <Card variant="glass" padding="md" className="lg:col-span-3">
+              <CardHeader>
+                <CardTitle>Milestones</CardTitle>
+              </CardHeader>
+              <Milestones
+                projectId={id}
+                items={milestones}
+                canSeedFromPrd={/^\s*##\s+requirements\b/im.test(project.prd_markdown ?? '')}
+              />
+            </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="prd">
+          <Card variant="glass" padding="md">
+            <CardHeader>
+              <CardTitle>Product requirements</CardTitle>
+            </CardHeader>
+            <PrdEditor projectId={id} prdMarkdown={project.prd_markdown}>
+              {project.prd_markdown ? (
+                <div
+                  className="prose-compass text-sm text-text-primary [&>*+*]:mt-3 [&_a]:text-accent [&_a:hover]:underline [&_h1]:text-lg [&_h1]:font-semibold [&_h2]:text-base [&_h2]:font-semibold [&_h3]:text-sm [&_h3]:font-semibold [&_code]:rounded-xs [&_code]:bg-surface-elevated [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-xs [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-surface-elevated [&_pre]:p-3 [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                  dangerouslySetInnerHTML={{ __html: renderMarkdown(project.prd_markdown) }}
+                />
+              ) : null}
+            </PrdEditor>
+          </Card>
         </TabsContent>
 
         <TabsContent value="notes">
@@ -203,10 +244,12 @@ export default async function ProjectDetailPage({
                     <div className="mb-1 text-2xs text-text-muted">
                       {humanRelative(note.created_at, new Date(), tz)}
                     </div>
-                    <div
-                      className="prose-compass text-sm text-text-primary [&>*+*]:mt-1.5 [&_a]:text-accent [&_a:hover]:underline [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
-                      dangerouslySetInnerHTML={{ __html: renderMarkdown(note.body_markdown) }}
-                    />
+                    <NoteEditor noteId={note.id} body={note.body_markdown}>
+                      <div
+                        className="prose-compass text-sm text-text-primary [&>*+*]:mt-1.5 [&_a]:text-accent [&_a:hover]:underline [&_p]:leading-relaxed [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5"
+                        dangerouslySetInnerHTML={{ __html: renderMarkdown(note.body_markdown) }}
+                      />
+                    </NoteEditor>
                   </div>
                 ))}
               </div>
@@ -228,8 +271,9 @@ export default async function ProjectDetailPage({
             ) : (
               <div className="flex flex-col divide-y divide-border/40">
                 {buildRuns.map((r) => {
-                  const links: Array<{ kind: string; url: string; label?: string }> =
-                    JSON.parse(r.links_json ?? '[]');
+                  const links: Array<{ kind: string; url: string; label?: string }> = JSON.parse(
+                    r.links_json ?? '[]',
+                  );
                   return (
                     <div key={r.id} className="py-2.5">
                       <div className="flex items-center gap-2 text-sm">
@@ -238,10 +282,10 @@ export default async function ProjectDetailPage({
                             r.status === 'completed'
                               ? 'inline-flex items-center gap-1 rounded-sm bg-success/15 px-1.5 py-0.5 text-2xs font-semibold uppercase text-success'
                               : r.status === 'failed'
-                              ? 'inline-flex items-center gap-1 rounded-sm bg-danger/15 px-1.5 py-0.5 text-2xs font-semibold uppercase text-danger'
-                              : r.status === 'running'
-                              ? 'inline-flex items-center gap-1 rounded-sm bg-accent-soft px-1.5 py-0.5 text-2xs font-semibold uppercase text-accent'
-                              : 'inline-flex items-center gap-1 rounded-sm bg-surface-elevated px-1.5 py-0.5 text-2xs font-semibold uppercase text-text-muted'
+                                ? 'inline-flex items-center gap-1 rounded-sm bg-danger/15 px-1.5 py-0.5 text-2xs font-semibold uppercase text-danger'
+                                : r.status === 'running'
+                                  ? 'inline-flex items-center gap-1 rounded-sm bg-accent-soft px-1.5 py-0.5 text-2xs font-semibold uppercase text-accent'
+                                  : 'inline-flex items-center gap-1 rounded-sm bg-surface-elevated px-1.5 py-0.5 text-2xs font-semibold uppercase text-text-muted'
                           }
                         >
                           {r.status}
@@ -261,9 +305,9 @@ export default async function ProjectDetailPage({
                       ) : null}
                       {links.length > 0 ? (
                         <div className="mt-1 flex flex-wrap gap-1.5">
-                          {links.map((l, i) => (
+                          {links.map((l) => (
                             <a
-                              key={i}
+                              key={l.url}
                               href={l.url}
                               target="_blank"
                               rel="noopener noreferrer"

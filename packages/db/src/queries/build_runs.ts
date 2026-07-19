@@ -1,5 +1,5 @@
-import { and, desc, eq } from 'drizzle-orm';
-import { newUlid, nowIso, type RunStatus } from '@compass/shared';
+import { type RunStatus, newUlid, nowIso } from '@compass/shared';
+import { desc, eq, inArray } from 'drizzle-orm';
 import { getDb } from '../index.js';
 import { touchEntity } from '../touch.js';
 
@@ -39,6 +39,54 @@ export async function listForProject(projectId: string, limit = 50): Promise<Bui
 }
 
 /**
+ * Queue a run from the UI with a stated objective. The external agent picks it up out-of-band
+ * (Compass records runs, it does not execute them — PRD §5.2.4) and reports back via webhook
+ * using this run's id.
+ */
+export async function queueRun(projectId: string, objective: string): Promise<BuildRunRow> {
+  const handle = getDb();
+  const id = newUlid();
+  const now = nowIso();
+  await handle.db.insert(handle.schema.build_run).values({
+    id,
+    project_id: projectId,
+    objective: objective.slice(0, 2000),
+    status: 'queued',
+    body_markdown: null,
+    links_json: '[]',
+    started_at: null,
+    ended_at: null,
+    duration_ms: null,
+    created_at: now,
+    last_touched_at: now,
+  });
+  await touchEntity({
+    type: 'build_run',
+    id,
+    at: now,
+    event: { type: 'run_queued', payload: { objective: objective.slice(0, 500) } },
+    alsoTouch: [{ type: 'project', id: projectId }],
+  });
+  return (await get(id))!;
+}
+
+/** Terminal-state runs that ended since `sinceIso` — powers the dashboard overnight summary. */
+export async function recentTerminal(sinceIso: string, limit = 10): Promise<BuildRunRow[]> {
+  const handle = getDb();
+  const t = handle.schema.build_run;
+  const rows = await handle.db
+    .select()
+    .from(t)
+    .where(inArray(t.status, ['completed', 'failed']))
+    .orderBy(desc(t.ended_at))
+    .limit(limit * 3);
+  // ended_at is nullable; filter + trim in JS on the small, already-capped set.
+  return (rows as BuildRunRow[])
+    .filter((r) => r.ended_at && r.ended_at >= sinceIso)
+    .slice(0, limit);
+}
+
+/**
  * Upsert a build run record on receiving a webhook event. Recomputes status from event_type.
  * Returns the resulting row + whether it was a new row.
  */
@@ -58,12 +106,14 @@ export async function upsertFromEvent(input: {
   const now = nowIso();
 
   const status = computeStatus(input.event_type, existing?.status);
-  const links_json = input.links ? JSON.stringify(input.links) : existing?.links_json ?? '[]';
+  const links_json = input.links ? JSON.stringify(input.links) : (existing?.links_json ?? '[]');
   const body_markdown = input.body_markdown ?? existing?.body_markdown ?? null;
   const started_at =
     existing?.started_at ?? (input.event_type === 'started' ? input.occurred_at : null);
   const ended_at =
-    input.event_type === 'completed' || input.event_type === 'failed' ? input.occurred_at : existing?.ended_at ?? null;
+    input.event_type === 'completed' || input.event_type === 'failed'
+      ? input.occurred_at
+      : (existing?.ended_at ?? null);
   const duration_ms = input.duration_ms ?? existing?.duration_ms ?? null;
   const objective = input.objective ?? existing?.objective ?? null;
 

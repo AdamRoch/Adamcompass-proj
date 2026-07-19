@@ -1,7 +1,7 @@
+import { newUlid } from '@compass/shared';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { setupTestDb } from '../../../../tests/helpers/db.js';
 import { createFts5Provider } from '../fts5.js';
-import { newUlid } from '@compass/shared';
 
 describe('FTS5 search provider', () => {
   beforeEach(() => {

@@ -1,21 +1,24 @@
-import type { NextRequest } from 'next/server';
-import * as projectsQ from '@compass/db/queries/projects';
-import { createProjectSchema } from '@compass/shared/zod';
 import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
 import { indexProject } from '@/lib/index-entity';
-import type { ProjectStage } from '@compass/shared';
+import * as projectsQ from '@compass/db/queries/projects';
+import { PROJECT_STATUSES, type ProjectStage, type ProjectStatus } from '@compass/shared';
+import { createProjectSchema } from '@compass/shared/zod';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {
     await requireAuth(req);
     const url = new URL(req.url);
     const stage = url.searchParams.get('stage') as ProjectStage | null;
-    const status = url.searchParams.get('status');
+    const statusParam = url.searchParams.get('status');
+    const status = PROJECT_STATUSES.includes(statusParam as ProjectStatus)
+      ? (statusParam as ProjectStatus)
+      : undefined;
     const includeArchived = url.searchParams.get('include_archived') === 'true';
     const limit = Number(url.searchParams.get('limit') ?? 200);
     const projects = await projectsQ.listProjects({
       stage: stage ?? undefined,
-      status: status ?? undefined,
+      status,
       includeArchived,
       limit,
     });

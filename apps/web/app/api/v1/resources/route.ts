@@ -1,9 +1,9 @@
-import type { NextRequest } from 'next/server';
-import * as resourcesQ from '@compass/db/queries/resources';
-import { createResourceSchema } from '@compass/shared/zod';
 import { fromApiError, ok, readJson, requireAuth } from '@/lib/api';
 import { indexResource } from '@/lib/index-entity';
+import * as resourcesQ from '@compass/db/queries/resources';
 import type { ReadingStatus, ResourceKind } from '@compass/shared';
+import { createResourceSchema } from '@compass/shared/zod';
+import type { NextRequest } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {

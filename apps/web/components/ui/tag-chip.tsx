@@ -1,8 +1,8 @@
 'use client';
 
-import * as React from 'react';
-import { X } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { X } from 'lucide-react';
+import type * as React from 'react';
 
 export interface TagChipProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'onClick'> {
   /** Tag label without leading `#`. If omitted, `children` is used as the label. */

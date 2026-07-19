@@ -1,7 +1,7 @@
-import type { NextRequest } from 'next/server';
+import { fromApiError, ok, requireAuth } from '@/lib/api';
 import * as projectsQ from '@compass/db/queries/projects';
 import { ApiError } from '@compass/shared';
-import { fromApiError, ok, requireAuth } from '@/lib/api';
+import type { NextRequest } from 'next/server';
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {

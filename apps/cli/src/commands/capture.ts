@@ -5,7 +5,7 @@ import { INBOX_TYPE_HINTS, type InboxTypeHint } from '@compass/shared';
 import kleur from 'kleur';
 import { v4 as uuidv4 } from 'uuid';
 import { deriveClientId, resolveConfig, updateLastContact } from '../config.js';
-import { appendOutbox, type OutboxEntry, toCaptureRequest } from '../outbox.js';
+import { type OutboxEntry, appendOutbox, toCaptureRequest } from '../outbox.js';
 
 export interface CaptureOptions {
   type?: string;
@@ -25,16 +25,17 @@ export async function runCapture(
 ): Promise<number> {
   const text = await resolveText(positionalText, ctx);
   if (!text) {
-    console.error(kleur.red('error: ') + 'no capture text provided.');
-    console.error('Hint: ' + kleur.dim('compass capture "your text"  OR  echo "..." | compass capture'));
+    console.error(`${kleur.red('error: ')}no capture text provided.`);
+    console.error(
+      `Hint: ${kleur.dim('compass capture "your text"  OR  echo "..." | compass capture')}`,
+    );
     return 1;
   }
 
   const typeHint = normalizeType(opts.type);
   if (typeHint === null) {
     console.error(
-      kleur.red('error: ') +
-        `invalid --type "${opts.type ?? ''}". Allowed: ${INBOX_TYPE_HINTS.join(', ')}.`,
+      `${kleur.red('error: ')}invalid --type "${opts.type ?? ''}". Allowed: ${INBOX_TYPE_HINTS.join(', ')}.`,
     );
     return 1;
   }
@@ -45,8 +46,7 @@ export async function runCapture(
     // server is the authority. PRD §8.2 allows skipping inbox by filing directly.
     if (!/^[0-9A-HJKMNP-TV-Z]{26}$/.test(opts.project)) {
       console.error(
-        kleur.yellow('warn: ') +
-          `--project "${opts.project}" doesn't look like a ULID; sending anyway.`,
+        `${kleur.yellow('warn: ')}--project "${opts.project}" doesn't look like a ULID; sending anyway.`,
       );
     }
   }
@@ -104,18 +104,14 @@ export async function runCapture(
       await updateLastContact(new Date().toISOString());
     } catch (err) {
       console.error(
-        kleur.yellow('warn: ') +
-          'capture succeeded but filing into project failed: ' +
-          describeErr(err),
+        `${kleur.yellow('warn: ')}capture succeeded but filing into project failed: ${describeErr(err)}`,
       );
       console.error(kleur.dim('  The note is in your inbox; file it manually.'));
     }
   }
 
   if (sent) {
-    const suffix = filed
-      ? kleur.dim(` (${typeHint}, filed)`)
-      : kleur.dim(` (${typeHint})`);
+    const suffix = filed ? kleur.dim(` (${typeHint}, filed)`) : kleur.dim(` (${typeHint})`);
     console.log(kleur.green('captured') + suffix);
   } else {
     console.log(
@@ -140,10 +136,7 @@ function normalizeType(raw: string | undefined): InboxTypeHint | null {
   return (INBOX_TYPE_HINTS as readonly string[]).includes(lower) ? (lower as InboxTypeHint) : null;
 }
 
-async function resolveText(
-  positional: string | undefined,
-  ctx: CaptureContext,
-): Promise<string> {
+async function resolveText(positional: string | undefined, ctx: CaptureContext): Promise<string> {
   if (typeof positional === 'string' && positional.trim().length > 0) {
     return positional.trim();
   }
